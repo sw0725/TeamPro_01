@@ -77,11 +77,7 @@ public class Inventory
             {
                 // 슬롯이 비었으면
                 slot.AssignSlotItem(data);          // 그대로 아이템 설정
-                if(slot.ItemData.itemType == ItemType.Price)
-                {
-                    invenUI.Money += (int)slot.ItemData.Price;
-                }
-                invenUI.Weight += (int)slot.ItemData.weight;
+                PlusValue(slot);
                 result = true;
             }
             else
@@ -91,11 +87,7 @@ public class Inventory
                 {
                     // 같은 종류의 아이템이면
                     result = slot.SetSlotCount(out _);   // 아이템 증가 시도
-                    if (slot.ItemData.itemType == ItemType.Price)
-                    {
-                        invenUI.Money += (int)slot.ItemData.Price;
-                    }
-                    invenUI.Weight += (int)slot.ItemData.weight;
+                    PlusValue(slot);
                 }
             }
         }
@@ -107,11 +99,7 @@ public class Inventory
         if (IsValidIndex(slotIndex))
         {
             ItemSlot slot = slots[slotIndex];
-            if (slot.ItemData.itemType == ItemType.Price)
-            {
-                invenUI.Money -= (int)count * (int)slot.ItemData.Price;
-            }
-            invenUI.Weight -= (int)count * (int)slot.ItemData.weight;
+            MinusValue(slot);
             slot.DecreaseSlotItem(count);
         }
     }
@@ -175,7 +163,7 @@ public class Inventory
         }
     }
 
-    void SwapSlot(ItemSlot slotA, ItemSlot slotB)
+    public void SwapSlot(ItemSlot slotA, ItemSlot slotB)
     {
         ItemData dragData = slotA.ItemData;
         uint dragCount = slotA.ItemCount;
@@ -248,10 +236,28 @@ public class Inventory
         }
     }
 
+    public void PlusValue(ItemSlot slot)
+    {
+        if (slot.ItemData.itemType == ItemType.Price)
+        {
+            invenUI.Money += (int)(slot.ItemData.Price * slot.ItemCount);
+        }
+        invenUI.Weight += (int)(slot.ItemData.weight * slot.ItemCount);
+    }
+
+    public void MinusValue(ItemSlot slot)
+    {
+        if (slot.ItemData.itemType == ItemType.Price)
+        {
+            invenUI.Money -= (int)(slot.ItemData.Price * slot.ItemCount);
+        }
+        invenUI.Weight -= (int)(slot.ItemData.weight * slot.ItemCount);
+    }
+
     /// <summary>
     /// 슬롯 인덱스가 적절한 인덱스인지 확인하는 함수
     /// </summary>
-    /// <param Name="fromIndex">확인할 인덱스</param>
+    /// <param Name="invenFromIndex">확인할 인덱스</param>
     /// <returns>true면 적절한 인덱스, false면 잘못된 인덱스</returns>
     bool IsValidIndex(uint index)
     {

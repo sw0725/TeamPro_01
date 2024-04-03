@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class ArmorBase : ItemBase
 {
+
+    public float amountDefense = 30.0f;
     protected Player player;
 
     private void Awake()
@@ -15,4 +17,9 @@ public class ArmorBase : ItemBase
     {
 
     }
+
+    //public override void UnUse()
+    //{
+
+    //}
 }

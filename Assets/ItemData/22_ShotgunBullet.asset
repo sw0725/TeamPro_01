@@ -15,7 +15,8 @@ MonoBehaviour:
   itemId: 22
   itemType: 3
   itemName: 12g
-  itemImage: {fileID: 21300000, guid: 2bd08cc92f3412c4ba57eae455dd32c8, type: 3}
+  itemImage: {fileID: 21300000, guid: b2bba244b6cc5fa46be8e6fbd861e357, type: 3}
   weight: 6
   maxItemCount: 8
   itemPrefab: {fileID: 100000, guid: 73013fb0106eb684f9374feac4497e4c, type: 3}
+  Price: 0

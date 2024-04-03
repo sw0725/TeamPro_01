@@ -85,15 +85,26 @@ public class Player : MonoBehaviour
     public float defense = 0.0f;
 
     public Animator animator;
+
+    bool isMove = false;
+
+    PlayerNoiseSystem noise;
+    WaitForSeconds LangingSoundInterval = new WaitForSeconds(0.1f);
+    const float runSoundRange = 5.0f;
+    const float landingSoundRange = 6.0f;
+
     private void Awake()
     {
         inputActions = new PlayerMove();
+        noise = transform.GetComponentInChildren<PlayerNoiseSystem>(true);
+        noise.gameObject.SetActive(false);
     }
 
 
     // 점프시 레이를 이용해 점프할 수 있는 환경인지 확인
     private void OnEnable()
     {
+        noise.gameObject.SetActive(false);
         inputActions.Player.Enable();
         inputActions.Player.Move.performed += OnMovePerformed;  // 이동 시작
         inputActions.Player.Move.canceled += OnMoveCanceled;    // 이동 중지
@@ -131,11 +142,19 @@ public class Player : MonoBehaviour
     private void OnMovePerformed(InputAction.CallbackContext ctx)
     {
         movementInput = ctx.ReadValue<Vector2>();
+        isMove = true;
+        if (isRunning)
+        {
+            noise.Radius = runSoundRange;
+            noise.gameObject.SetActive(true);
+        }
     }
 
     private void OnMoveCanceled(InputAction.CallbackContext ctx)
     {
         movementInput = Vector2.zero;
+        isMove = false;
+        noise.gameObject.SetActive(false);
     }
 
     private void OnJump(InputAction.CallbackContext ctx)
@@ -166,11 +185,17 @@ public class Player : MonoBehaviour
     private void OnRunPerformed(InputAction.CallbackContext ctx)
     {
         isRunning = true;   // 달리는 중
+        if (isMove) 
+        {
+            noise.Radius = runSoundRange;
+            noise.gameObject.SetActive(true);
+        }
     }
 
     private void OnRunCanceled(InputAction.CallbackContext ctx)
     {
         isRunning = false;  // 달리기 종료
+        noise.gameObject.SetActive(false);
     }
 
     private void OnInventoryAction(InputAction.CallbackContext ctx)
@@ -257,5 +282,21 @@ public class Player : MonoBehaviour
 
         // 델리게이트에 죽었음을 알리기(onDie 델리게이트)
         onDie?.Invoke();
+    }
+
+    IEnumerator LandingNoise()
+    {
+        noise.Radius = landingSoundRange;
+        noise.gameObject.SetActive(true);
+        yield return LangingSoundInterval;
+        noise.gameObject.SetActive(false);
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.transform.CompareTag("Ground")) 
+        {
+            LandingNoise();
+        }
     }
 }

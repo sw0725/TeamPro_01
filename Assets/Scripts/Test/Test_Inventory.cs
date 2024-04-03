@@ -56,6 +56,8 @@ public class Test_Inventory : TestBase
         inven.Test_InventoryPrint();
 
         inventoryUI.InitializeInventory(inven);
+
+        
     }
 
     protected override void OnTest1(InputAction.CallbackContext context)

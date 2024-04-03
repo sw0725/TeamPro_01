@@ -19,8 +19,6 @@ public class WorldInventory
 
     ItemDataManager itemDataManager;
 
-    WorldInventory_UI worldInvenUI;
-
     Player owner;
 
     public Player Owner => owner;
@@ -35,7 +33,6 @@ public class WorldInventory
         }
         dragSlot = new DragSlot(dragSlotIndex);
         itemDataManager = GameManager.Instance.ItemData;
-        worldInvenUI = GameManager.Instance.WorldInventory_UI;
         this.owner = owner;
     }
 
@@ -157,7 +154,7 @@ public class WorldInventory
         }
     }
 
-    void SwapSlot(ItemSlot slotA, ItemSlot slotB)
+    public void SwapSlot(ItemSlot slotA, ItemSlot slotB)
     {
         ItemData dragData = slotA.ItemData;
         uint dragCount = slotA.ItemCount;

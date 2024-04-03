@@ -19,17 +19,20 @@ public class WeightPanel_UI : MonoBehaviour
         child = transform.GetChild(2);
         max = child.GetComponent<TextMeshProUGUI>();
 
+        
+
     }
 
     private void Start()
     {
         player = GameManager.Instance.Player;
-        if(player != null)
+        if (player != null)
         {
             maxWeight = player.MaxWeight;
             max.text = $" / {maxWeight}KG";
 
             // 나중에 장비창 만든 이후 총 무게로 바꿀 것!!
+            // 플레이어를 찾지를 못해서 0이되네 왜지;;
         }
     }
 

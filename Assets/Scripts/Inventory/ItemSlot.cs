@@ -68,7 +68,7 @@ public class ItemSlot
         {
             ItemData = item;
             ItemCount = count;
-            Debug.Log($"인벤토리 {slotIndex}번 슬롯에 [{ItemData.itemName}]아이템이 [{ItemCount}]개 설정");
+           // Debug.Log($"인벤토리 {slotIndex}번 슬롯에 [{ItemData.itemName}]아이템이 [{ItemCount}]개 설정");
 
 
         }
@@ -83,7 +83,7 @@ public class ItemSlot
         ItemData = null;
         ItemCount = 0;
 
-        Debug.Log($"인벤토리 [{slotIndex}]번 슬롯을 비웁니다.");
+        //Debug.Log($"인벤토리 [{slotIndex}]번 슬롯을 비웁니다.");
     }
 
     /// <summary>

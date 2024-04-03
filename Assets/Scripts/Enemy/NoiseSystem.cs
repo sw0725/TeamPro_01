@@ -10,7 +10,7 @@ public class NoiseSystem : RecycleObject
     public Action<Transform> onFind;
     public Transform? origin;       //호출한 오브젝트의 위치
 
-    WaitForSeconds existTime = new WaitForSeconds(0.5f);
+    WaitForSeconds existTime = new WaitForSeconds(0.1f);
     float Radius 
     {
         get => radius;
@@ -73,11 +73,9 @@ public class NoiseSystem : RecycleObject
             //{
             //    enemies.Remove(entity);
             //}
-            int index = 0;
             while (enemies.Count > 0)
             {
-                enemies.Remove(enemies[index]);
-                index++;
+                enemies.Remove(enemies[0]);
             }
         
         }

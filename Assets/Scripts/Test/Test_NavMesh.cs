@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.PackageManager;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.InputSystem;
@@ -52,5 +53,22 @@ public class Test_NavMesh : TestBase
             target.position = hitInfo.point;
             Factory.Instance.GetNoise(10.0f, target, target.position);
         }
+    }
+
+    protected override void OnTest1(InputAction.CallbackContext context)
+    {
+        OnA();
+        Invoke("OnB", 0.5f);
+    }
+
+    private void OnA()
+    {
+        target.position = new Vector3(0, 0, 5);
+        Factory.Instance.GetNoise(10.0f, target, target.position);
+    }
+    private void OnB()
+    {
+        target.position = new Vector3(0, 0, -5);
+        Factory.Instance.GetNoise(10.0f, target, target.position);
     }
 }

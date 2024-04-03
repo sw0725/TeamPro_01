@@ -22,6 +22,7 @@ public class Inventory_UI : MonoBehaviour
 
     MoneyPanel_UI moneyPanel;
 
+    RectTransform invenRect;
 
     // 무게는 이후에 플레이어로 옮긴 이후 무게에 따라서 이동속도 변환 기믹 구현하기
     int weight = 0;
@@ -61,6 +62,7 @@ public class Inventory_UI : MonoBehaviour
     //인벤토리의 돈에 변화가 있으면 실행되는 델리게이트
     public Action<int> onMoneyChange;
 
+
     private void Awake()
     {
         Transform child = transform.GetChild(0);
@@ -80,6 +82,8 @@ public class Inventory_UI : MonoBehaviour
 
         child = transform.GetChild(5);
         moneyPanel = child.GetComponent<MoneyPanel_UI>();
+
+        invenRect = transform.GetComponent<RectTransform>();
     }
 
     public void InitializeInventory(Inventory playerInventory)
@@ -93,7 +97,7 @@ public class Inventory_UI : MonoBehaviour
             slotsUI[i].onDragEnd += OnItemMoveEnd;
             slotsUI[i].onRightClick += OnRightClick;
             slotsUI[i].OnClick += OnClick;
-
+            slotsUI[i].onValuePlus += OnValuePlus;
         }
 
         dragSlotUI.InitializeSlot(inventory.DragSlot);  // 임시 슬롯 초기화
@@ -114,8 +118,14 @@ public class Inventory_UI : MonoBehaviour
 
         onMoneyChange += moneyPanel.Refresh;
         moneyPanel.Refresh(Money);
+
     }
-    
+
+    private void OnValuePlus(ItemSlot slot)
+    {
+        inventory.PlusValue(slot);
+    }
+
     /// <summary>
     /// 아이템 드래그 시작하면 실행되는 함수
     /// </summary>
@@ -130,25 +140,36 @@ public class Inventory_UI : MonoBehaviour
     /// 아이템 드래그가 끝이나면 실행되는 함수
     /// </summary>
     /// <param name="index">끝난 슬롯의 index</param>
-    private void OnItemMoveEnd(uint index)
+    private void OnItemMoveEnd(RectTransform rectParent, RectTransform rect , uint index)
     {
-        inventory.MoveItem(dragSlotUI.Index, index);
-
-        if(dragSlotUI.ItemSlot.IsEmpty)
+        if(rectParent == invenRect)
         {
-            dragSlotUI.Close();
+            inventory.MoveItem(dragSlotUI.Index, index);
+
+            if (dragSlotUI.ItemSlot.IsEmpty)
+            {
+                dragSlotUI.Close();
+            }
         }
+        else
+        {
+            Slot_UI slot = rect.GetComponent<Slot_UI>();
+
+            inventory.MinusValue(dragSlotUI.ItemSlot);
+            slot.SlotSwap(slot.ItemSlot, dragSlotUI.ItemSlot);
+        }
+
     }
 
     /// <summary>
     /// 슬롯을 클릭하면 실행되는 함수
     /// </summary>
     /// <param name="index"></param>
-    private void OnClick(uint index)
+    private void OnClick(RectTransform rect, uint index)
     {
         if(!dragSlotUI.ItemSlot.IsEmpty)
         {
-            OnItemMoveEnd(index);
+            OnItemMoveEnd(invenRect, rect, index);
         }
     }
 

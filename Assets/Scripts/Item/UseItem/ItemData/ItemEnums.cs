@@ -11,6 +11,7 @@ public enum ItemType    //아이템 그룹 분리용 type
     Trap,
     Key,
     Price,
+    Armor
 
 }
 
@@ -43,5 +44,14 @@ public enum ItemCode    //아이템 개별 식별용 ID
     OneHundreadDol = 24,
     OneThousandDol = 25,
     TenThousandDol = 26,
+    LowHelmet = 27,
+    MiddleHelmet = 28,
+    HighHelmet = 29,
+    LowVest = 30,
+    MiddleVest = 31,
+    HighVest = 32,
+    LowBackpack = 33,
+    MiddleBackpack = 34,
+    HighBackpack = 35,
 
 }

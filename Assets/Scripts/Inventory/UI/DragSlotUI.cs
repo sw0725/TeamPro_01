@@ -24,6 +24,11 @@ public class DragSlotUI : Slot_UI_Base
         Close();
     }
 
+    public void ClearSlot()
+    {
+        dragSlot.ClearSlot();
+    }
+
     public void Open()
     {
         transform.position = Mouse.current.position.ReadValue();

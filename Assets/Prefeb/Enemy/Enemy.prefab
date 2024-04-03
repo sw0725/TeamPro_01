@@ -14,9 +14,9 @@ GameObject:
   - component: {fileID: 7936938594169467113}
   - component: {fileID: 3380240674081462802}
   - component: {fileID: 7766106941498648399}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Enemy
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -46,8 +46,8 @@ Rigidbody:
   m_GameObject: {fileID: 6987181451042910932}
   serializedVersion: 4
   m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
+  m_Drag: Infinity
+  m_AngularDrag: Infinity
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -60,7 +60,7 @@ Rigidbody:
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 1
-  m_IsKinematic: 0
+  m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 80
   m_CollisionDetection: 0
@@ -122,7 +122,7 @@ NavMeshAgent:
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
-  m_StoppingDistance: 0
+  m_StoppingDistance: 0.5
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
@@ -146,6 +146,13 @@ MonoBehaviour:
   moveSpeed: 5
   attackDamege: 25
   maxCoolTime: 1.5
+  dropItems:
+  - code: 19
+    dropRatio: 0.1
+    dropCount: 0
+  - code: 24
+    dropRatio: 1
+    dropCount: 0
 --- !u!1001 &242746228351005186
 PrefabInstance:
   m_ObjectHideFlags: 0

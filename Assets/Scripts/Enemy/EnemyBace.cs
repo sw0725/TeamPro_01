@@ -10,6 +10,16 @@ public class EnemyBace : RecycleObject
     public float attackDamege = 25.0f;
     public float maxCoolTime = 1.5f;
 
+    [System.Serializable]
+    public struct ItemDropInfo
+    {
+        public ItemCode code;
+        [Range(0, 1)]
+        public float dropRatio;
+        public uint dropCount;
+    }
+    public ItemDropInfo[] dropItems;
+
     float hp = 100.0f;
     float Hp 
     {
@@ -132,7 +142,14 @@ public class EnemyBace : RecycleObject
 
     void ItemDrop() 
     {
-        //아이템 테이블, 아이템매니져 필요 
+        foreach (var item in dropItems) 
+        {
+            if (item.dropRatio > Random.value) 
+            {
+                uint count = (uint)Random.Range(0, item.dropCount) + 1;
+                //팩토리 생산
+            }
+        }
     }
 
     public void OnDetect(Transform targeting, bool on = true) //감지 델리게이트=이쪽에서 연결 섬광맞으면 타겟 풀리게할거임
