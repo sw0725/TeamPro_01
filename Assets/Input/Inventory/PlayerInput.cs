@@ -29,7 +29,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             ""actions"": [
                 {
                     ""name"": ""Inventory"",
-                    ""code"": ""Button"",
+                    ""type"": ""Button"",
                     ""id"": ""a58fe1e0-e319-4158-b8c2-825a180cc13a"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
@@ -38,7 +38,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": ""Click"",
-                    ""code"": ""Button"",
+                    ""type"": ""Button"",
                     ""id"": ""52cd5916-0925-4044-9e28-dd04fa4abac6"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",

@@ -11,7 +11,12 @@ public class ItemBase : MonoBehaviour
     {
 
     }
+
+    //public ItemData Interaction()
+    //{
+
+    //}
 }
 
-    
+
 

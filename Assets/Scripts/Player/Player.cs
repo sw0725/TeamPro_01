@@ -3,25 +3,24 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using static UnityEditor.FilePathAttribute;
 
 public class Player : MonoBehaviour
 {
     /// <summary>
-    /// ÇÃ·¹ÀÌ¾î ÀÌµ¿¼Óµµ
+    /// í”Œë ˆì´ì–´ ì´ë™ì†ë„
     /// </summary>
     public float moveSpeed = 3f;
 
-    /// ÇÃ·¹ÀÌ¾î Á¡ÇÁ·Â
+    /// í”Œë ˆì´ì–´ ì í”„ë ¥
     /// </summary>
     public float jumpPower = 5f;
 
     /// <summary>
-    /// ÇÃ·¹ÀÌ¾î Ã¼·Â
+    /// í”Œë ˆì´ì–´ ì²´ë ¥
     /// </summary>
     float hp = 100;
     public float maxHp = 100;
-    float Hp
+    public float Hp
     {
         get => hp;
         set
@@ -30,6 +29,7 @@ public class Player : MonoBehaviour
             {
                 hp = value;
                 hp = Mathf.Clamp(hp, 0, maxHp);
+                OnHealthChange?.Invoke(hp);
                 if (hp < 0.1)
                 {
                     Die();
@@ -39,48 +39,49 @@ public class Player : MonoBehaviour
     }
 
     /// <summary>
-    /// ´Ş¸±½Ã »¡¶óÁö´Â ¼Óµµ 
+    /// ë‹¬ë¦´ì‹œ ë¹¨ë¼ì§€ëŠ” ì†ë„ 
     /// </summary>
     public float runningSpeed = 2.0f;
 
     /// <summary>
-    /// Ä³¸¯ÅÍ ÄÄÆ÷³ÍÆ® ÂüÁ¶¸¦ À§ÇÑ º¯¼ö ¼±¾ğ
+    /// ìºë¦­í„° ì»´í¬ë„ŒíŠ¸ ì°¸ì¡°ë¥¼ ìœ„í•œ ë³€ìˆ˜ ì„ ì–¸
     /// </summary>
     private CharacterController cc;
 
     /// <summary>
-    /// ÀÎÇ² ½Ã½ºÅÛ ÂüÁ¶¿ë º¯¼ö
+    /// ì¸í’‹ ì‹œìŠ¤í…œ ì°¸ì¡°ìš© ë³€ìˆ˜
     /// </summary>
     private PlayerMove inputActions;
 
     /// <summary>
-    /// ¿òÁ÷ÀÓ ÁÂÇ¥°è»êÀ» À§ÇÑ? º¯¼ö
+    /// ì›€ì§ì„ ì¢Œí‘œê³„ì‚°ì„ ìœ„í•œ? ë³€ìˆ˜
     /// </summary>
     private Vector2 movementInput;
 
     /// <summary>
-    /// ¾Æ·¡·Î ¶³¾îÁö´Â Áß·Â
+    /// ì•„ë˜ë¡œ ë–¨ì–´ì§€ëŠ” ì¤‘ë ¥
     /// </summary>
     private float gravity = -20f;
 
     /// <summary>
-    /// Ä³¸¯ÅÍÀÇ ¼öÁ÷ ¼Óµµ °íÁ¤
+    /// ìºë¦­í„°ì˜ ìˆ˜ì§ ì†ë„ ê³ ì •
     /// </summary>
     private float yVelocity = 0;
 
     /// <summary>
-    /// ´Ş¸®±â »óÅÂ
+    /// ë‹¬ë¦¬ê¸° ìƒíƒœ
     /// </summary>
     private bool isRunning = false;
     private Vector3 moveDirection = Vector3.zero;
-    public float limitWeight = 20f; // ¹«°Ô°¡ ÀÌ °ªº¸´Ù Å¬ ¶§ ¼Óµµ°¡ ÁÙ¾îµå´Â ÁöÁ¡
-    public float MaxWeight = 40f; // ¹«°Ô°¡ ÀÌ °ªº¸´Ù Å¬ ¶§ ÀÌµ¿ÀÌ ¸ØÃß´Â ÁöÁ¡
-    public float currentWeight = 10f; // ÇöÀç ¹«°Ô
+    public float limitWeight = 20f; // ë¬´ê²Œê°€ ì´ ê°’ë³´ë‹¤ í´ ë•Œ ì†ë„ê°€ ì¤„ì–´ë“œëŠ” ì§€ì 
+    public float MaxWeight = 40f; // ë¬´ê²Œê°€ ì´ ê°’ë³´ë‹¤ í´ ë•Œ ì´ë™ì´ ë©ˆì¶”ëŠ” ì§€ì 
+    public float currentWeight = 10f; // í˜„ì¬ ë¬´ê²Œ
 
     /// <summary>
-    /// ÇÃ·¹ÀÌ¾îÀÇ »ç¸ÁÀ» ¾Ë¸®´Â µ¨¸®°ÔÀÌÆ®
+    /// í”Œë ˆì´ì–´ì˜ ì‚¬ë§ì„ ì•Œë¦¬ëŠ” ë¸ë¦¬ê²Œì´íŠ¸
     /// </summary>
     public Action onDie;
+    public Action<float> OnHealthChange { get; set; }
 
     public float defense = 0.0f;
 
@@ -93,6 +94,10 @@ public class Player : MonoBehaviour
     const float runSoundRange = 5.0f;
     const float landingSoundRange = 6.0f;
 
+    /// <summary>
+    /// í”Œë ˆì´ì–´ê°€ ê³µì¤‘ì— ìˆì—ˆëŠ”ì§€ í™•ì¸í•˜ëŠ” ë³€ìˆ˜
+    /// </summary>
+    private bool wasInAir = false;
     private void Awake()
     {
         inputActions = new PlayerMove();
@@ -101,24 +106,23 @@ public class Player : MonoBehaviour
     }
 
 
-    // Á¡ÇÁ½Ã ·¹ÀÌ¸¦ ÀÌ¿ëÇØ Á¡ÇÁÇÒ ¼ö ÀÖ´Â È¯°æÀÎÁö È®ÀÎ
+    // ì í”„ì‹œ ë ˆì´ë¥¼ ì´ìš©í•´ ì í”„í•  ìˆ˜ ìˆëŠ” í™˜ê²½ì¸ì§€ í™•ì¸
     private void OnEnable()
     {
         noise.gameObject.SetActive(false);
         inputActions.Player.Enable();
-        inputActions.Player.Move.performed += OnMovePerformed;  // ÀÌµ¿ ½ÃÀÛ
-        inputActions.Player.Move.canceled += OnMoveCanceled;    // ÀÌµ¿ ÁßÁö
-        inputActions.Player.Jump.performed += OnJump;           // Á¡ÇÁ
-        inputActions.Player.Run.performed += OnRunPerformed;    // ´Ş¸®±â ½ÃÀÛ
-        inputActions.Player.Run.canceled += OnRunCanceled;      // ´Ş¸®±â ÁßÁö
-        //inputActions.Player.InteractAction.performed += OnInteract;            // »óÈ£ÀÛ¿ë
-        inputActions.Player.InventoryAction.performed += OnInventoryAction;    // ÀÎº¥Åä¸® »ç¿ë
-        inputActions.Player.InventoryAction.canceled += OnInventoryAction;     // ÀÎº¥Åä¸® »ç¿ë
-        inputActions.Player.Exit.performed += OnExit;                          // Á¾·á(ÀÏ½ÃÁ¤Áö)
-        inputActions.Player.Reload.performed += OnReload;                      // ÀçÀåÀü
-        inputActions.Player.LeftMouse.performed += OnLeftMouse;                // ¿ŞÂÊ ¸¶¿ì½º ÀÔ·Â
-        inputActions.Player.RightMouse.performed += OnRightMouse;              // ¿À¸¥ÂÊ ¸¶¿ì½º ÀÔ·Â
-        inputActions.Player.HotbarKey.performed += OnHotbarKey;                // ÇÖ¹ÙÅ° »ç¿ë
+        inputActions.Player.Move.performed += OnMovePerformed;  // ì´ë™ ì‹œì‘
+        inputActions.Player.Move.canceled += OnMoveCanceled;    // ì´ë™ ì¤‘ì§€
+        inputActions.Player.Jump.performed += OnJump;           // ì í”„
+        inputActions.Player.Run.performed += OnRunPerformed;    // ë‹¬ë¦¬ê¸° ì‹œì‘
+        inputActions.Player.Run.canceled += OnRunCanceled;      // ë‹¬ë¦¬ê¸° ì¤‘ì§€
+        //inputActions.Player.InteractAction.performed += OnInteract;            // ìƒí˜¸ì‘ìš©
+        inputActions.Player.InventoryAction.performed += OnInventoryAction;    // ì¸ë²¤í† ë¦¬ ì‚¬ìš©
+        inputActions.Player.InventoryAction.canceled += OnInventoryAction;     // ì¸ë²¤í† ë¦¬ ì‚¬ìš©
+        inputActions.Player.Exit.performed += OnExit;                          // ì¢…ë£Œ(ì¼ì‹œì •ì§€)
+        inputActions.Player.LeftMouse.performed += OnLeftMouse;                // ì™¼ìª½ ë§ˆìš°ìŠ¤ ì…ë ¥
+        inputActions.Player.RightMouse.performed += OnRightMouse;              // ì˜¤ë¥¸ìª½ ë§ˆìš°ìŠ¤ ì…ë ¥
+        inputActions.Player.HotbarKey.performed += OnHotbarKey;                // í•«ë°”í‚¤ ì‚¬ìš©
     }
 
     private void OnDisable()
@@ -132,7 +136,6 @@ public class Player : MonoBehaviour
         inputActions.Player.InventoryAction.performed -= OnInventoryAction;
         inputActions.Player.InventoryAction.canceled -= OnInventoryAction;
         inputActions.Player.Exit.performed -= OnExit;
-        inputActions.Player.Reload.performed -= OnReload;
         inputActions.Player.LeftMouse.performed -= OnLeftMouse;
         inputActions.Player.RightMouse.performed -= OnRightMouse;
         inputActions.Player.HotbarKey.performed -= OnHotbarKey;
@@ -167,16 +170,16 @@ public class Player : MonoBehaviour
     private bool IsGrounded()
     {
         float distanceToGround = cc.bounds.extents.y;
-        bool isGrounded = Physics.Raycast(transform.position, -Vector3.up, distanceToGround + 0.2f);
+        bool isGrounded = Physics.Raycast(transform.position, -Vector3.up, distanceToGround + 0.5f);
 
-        // ·¹ÀÌ ½Ã°¢È­¸¦ À§ÇÑ ÄÚµå
+        // ë ˆì´ ì‹œê°í™”ë¥¼ ìœ„í•œ ì½”ë“œ
         if (isGrounded)
         {
-            Debug.DrawLine(transform.position, transform.position + (-Vector3.up * (distanceToGround + 0.2f)), Color.green);
+            Debug.DrawLine(transform.position, transform.position + (-Vector3.up * (distanceToGround + 0.5f)), Color.green);
         }
         else
         {
-            Debug.DrawLine(transform.position, transform.position + (-Vector3.up * (distanceToGround + 0.2f)), Color.red);
+            Debug.DrawLine(transform.position, transform.position + (-Vector3.up * (distanceToGround + 0.5f)), Color.red);
         }
 
         return isGrounded;
@@ -184,7 +187,7 @@ public class Player : MonoBehaviour
 
     private void OnRunPerformed(InputAction.CallbackContext ctx)
     {
-        isRunning = true;   // ´Ş¸®´Â Áß
+        isRunning = true;   // ë‹¬ë¦¬ëŠ” ì¤‘
         if (isMove) 
         {
             noise.Radius = runSoundRange;
@@ -194,7 +197,7 @@ public class Player : MonoBehaviour
 
     private void OnRunCanceled(InputAction.CallbackContext ctx)
     {
-        isRunning = false;  // ´Ş¸®±â Á¾·á
+        isRunning = false;  // ë‹¬ë¦¬ê¸° ì¢…ë£Œ
         noise.gameObject.SetActive(false);
     }
 
@@ -203,10 +206,6 @@ public class Player : MonoBehaviour
     }
 
     private void OnExit(InputAction.CallbackContext ctx)
-    {
-    }
-
-    private void OnReload(InputAction.CallbackContext ctx)
     {
     }
 
@@ -220,7 +219,7 @@ public class Player : MonoBehaviour
 
     private void OnHotbarKey(InputAction.CallbackContext ctx)
     {
-        // int hotbarIndex = /* ¿©±â¿¡¼­ ÇÖ¹Ù Å° ¹øÈ£¸¦ °¡Á®¿À´Â ÄÚµå ÀÛ¼º */;
+        // int hotbarIndex = /* ì—¬ê¸°ì—ì„œ í•«ë°” í‚¤ ë²ˆí˜¸ë¥¼ ê°€ì ¸ì˜¤ëŠ” ì½”ë“œ ì‘ì„± */;
         // HotberKey(hotbarIndex);
     }
 
@@ -244,7 +243,7 @@ public class Player : MonoBehaviour
         }
         float currentSpeed = moveSpeed;
 
-        // ÁüÀÇ ¹«°Ô¿¡ µû¶ó ÀÌµ¿ ¼Óµµ Á¶Àı
+        // ì§ì˜ ë¬´ê²Œì— ë”°ë¼ ì´ë™ ì†ë„ ì¡°ì ˆ
         if (currentWeight > limitWeight && currentWeight <= MaxWeight)
         {
             currentSpeed -= (currentWeight - limitWeight) / (MaxWeight - limitWeight) * (moveSpeed - 0f);
@@ -267,6 +266,16 @@ public class Player : MonoBehaviour
 
         moveDirection.y = yVelocity;
         cc.Move(moveDirection * Time.deltaTime);
+
+        bool isGroundedNow = IsGrounded();
+
+        if (wasInAir && isGroundedNow)
+        {
+            Debug.Log("ë…¸ì´ì¦ˆ ë°œìƒ!");
+            // ê³µì¤‘ì—ì„œ ë•…ì— ì°©ì§€í–ˆì„ ë•Œ
+            StartCoroutine(LandingNoise());
+        }
+        wasInAir = !isGroundedNow; // í˜„ì¬ ê³µì¤‘ì— ìˆëŠ”ì§€ ì—¬ë¶€ë¥¼ ì—…ë°ì´íŠ¸
     }
 
     public void Damege(float damege) 
@@ -276,11 +285,11 @@ public class Player : MonoBehaviour
 
     public void Die()
     {
-        // Á¶Á¾ÀÌ ºÒ°¡ÇÏµµ·Ï ¸¸µç´Ù.
+        // ì¡°ì¢…ì´ ë¶ˆê°€í•˜ë„ë¡ ë§Œë“ ë‹¤.
         inputActions.Player.Disable();
 
 
-        // µ¨¸®°ÔÀÌÆ®¿¡ Á×¾úÀ½À» ¾Ë¸®±â(onDie µ¨¸®°ÔÀÌÆ®)
+        // ë¸ë¦¬ê²Œì´íŠ¸ì— ì£½ì—ˆìŒì„ ì•Œë¦¬ê¸°(onDie ë¸ë¦¬ê²Œì´íŠ¸)
         onDie?.Invoke();
     }
 
@@ -290,13 +299,5 @@ public class Player : MonoBehaviour
         noise.gameObject.SetActive(true);
         yield return LangingSoundInterval;
         noise.gameObject.SetActive(false);
-    }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.transform.CompareTag("Ground")) 
-        {
-            LandingNoise();
-        }
     }
 }

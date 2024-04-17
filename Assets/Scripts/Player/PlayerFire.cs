@@ -13,9 +13,13 @@ public class PlayerFire : MonoBehaviour
 
     private PlayerMove InputActions;
 
+
+    PlayerNoiseSystem noise;
+
     private void Awake()
     {
         ps = bulletEffect.GetComponent<ParticleSystem>();
+        noise = transform.GetComponentInChildren<PlayerNoiseSystem>(true);
 
         InputActions = new PlayerMove();
         InputActions.Player.LeftMouse.performed += OnLeftMouse;

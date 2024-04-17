@@ -11,7 +11,8 @@ public enum ItemType    //아이템 그룹 분리용 type
     Trap,
     Key,
     Price,
-    Armor
+    Armor,
+    WeaponParts
 
 }
 
@@ -53,5 +54,15 @@ public enum ItemCode    //아이템 개별 식별용 ID
     LowBackpack = 33,
     MiddleBackpack = 34,
     HighBackpack = 35,
+    PistolSilencer = 36,
+    RifleMagazine = 37,
+    RifleScope = 38,
+    RifleSilencer = 39,
+    RifleStock = 40,
+    ShotgunStock = 41,
+    SniperMagazine = 42,
+    SniperScope = 43,
+    SniperSilencer = 44,
+    SniperStock = 45,
 
 }

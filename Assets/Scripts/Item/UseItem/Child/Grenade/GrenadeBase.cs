@@ -4,12 +4,34 @@ using UnityEngine;
 
 public class GrenadeBase : ItemBase
 {
-    [Tooltip("던지는 힘")]
-    public float throwForce = 100.0f;
-    [Tooltip("데미지")]
-    public float grenadeDamage = 100.0f;
-    [Tooltip("반경")]
-    public float range = 1.0f;
-    [Tooltip("무게")]
-    public float weight = 0f;
+    [Tooltip("소음반경")]
+    public float NoiseRange = 5.0f;
+    public GameObject expoltionEffect;
+
+    Rigidbody rb;
+
+    protected virtual void Awake()
+    {
+        rb = GetComponent<Rigidbody>();
+    }
+
+    protected virtual void OnCollisionEnter(Collision collision)
+    {
+        Explode();
+    }
+
+    protected virtual void Explode()
+    {
+        Factory.Instance.GetNoise(NoiseRange, transform);
+    }
+
+    public override void Use()
+    {
+        PlayerFire playerfire = GetComponentInParent<PlayerFire>();         //물건을 사용할때는 무조건 자식으로 들어가 있을것
+        Player player = GameManager.Instance.Player;
+        Transform cam = player.transform.GetChild(0);
+
+        transform.position = playerfire.firePosition.transform.position;
+        rb.AddForce(cam.forward * playerfire.throwPower, ForceMode.Impulse);
+    }
 }

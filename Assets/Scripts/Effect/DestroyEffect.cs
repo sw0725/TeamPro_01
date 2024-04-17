@@ -5,13 +5,9 @@ using UnityEngine;
 public class DestroyEffect : MonoBehaviour
 {
     public float destroyTime = 1.5f;
-    float currentTime = 0;
-    private void Update()
+
+    private void Start()
     {
-        if (currentTime > destroyTime)
-        {
-            Destroy(gameObject);
-        }
-        currentTime += Time.deltaTime;
+        Destroy(this.gameObject, destroyTime);
     }
 }

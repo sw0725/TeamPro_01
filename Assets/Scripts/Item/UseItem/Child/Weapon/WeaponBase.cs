@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,7 +9,7 @@ public class WeaponBase : ItemBase
     [Tooltip("최대 총알 수, 장탄수")]
     public int maxAmmo = 10;
     [Tooltip("연사력")]
-    public int fireRate = 0;
+    public float fireRate = 0.1f;
     [Tooltip("무게")]
     public float weight = 0f;
     [Tooltip("가격")]
@@ -31,18 +32,36 @@ public class WeaponBase : ItemBase
     public float critRate = 0f;
     [Tooltip("탄속")]
     public uint muzzleVelocity = 0;
+    [Tooltip("소음")]
+    public float noiseVelocity = 7.0f;
 
-    [Tooltip("생성할 총알 오브젝트")]
-    public GameObject round;
+    int currentAmmo = 0;
+    float coolTime = 0f;
+    public bool canFire => coolTime < fireRate && currentAmmo > 0;
+    public Action<BulletType, int> onReload;    //장비창에 장착될때 인벤토리의 리로딩 함수와 연결 
 
-    /// <summary>
-    /// 실행 하면 해당 오브젝트의 맞는 기능들이 실현됨.
-    /// </summary>
-    public override void Use()
+    private void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        coolTime -= Time.deltaTime;
+    }
+
+    public override void Use() //리로딩
+    {
+        onReload?.Invoke(ammunitionType, maxAmmo);
+    }
+
+    public void ReLoad(int ammo)
+    {
+        currentAmmo = ammo;
+    }
+
+    public virtual void Fire() 
+    {
+        if (canFire) 
         {
-            //Player();
+            currentAmmo--;
+            coolTime = fireRate;
         }
     }
+
 }

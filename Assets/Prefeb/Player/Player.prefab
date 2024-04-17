@@ -132,10 +132,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 46a7c484d27f1784990ffc12f7fb939a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 7
+  moveSpeed: 3
   jumpPower: 5
   maxHp: 100
-  runningSpeed: 1.2
+  runningSpeed: 2
   limitWeight: 20
   MaxWeight: 40
   currentWeight: 10

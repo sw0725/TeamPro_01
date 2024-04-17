@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class ZombieSpawner : MonoBehaviour
 {
@@ -8,12 +10,20 @@ public class ZombieSpawner : MonoBehaviour
     public float interval = 1.5f;
     public int totalSpawn = 4;
 
+    NavMeshAgent navMesh;
 
 
     private void Start()
     {
         MakeZombie();
     }
+
+    //private void Update()
+    //{
+    //    navMesh.SetDestination(transform.position);
+
+    //}
+
 
 
 

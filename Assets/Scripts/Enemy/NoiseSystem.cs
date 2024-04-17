@@ -7,8 +7,8 @@ using static UnityEngine.EventSystems.EventTrigger;
 public class NoiseSystem : RecycleObject
 {
     public float radius = 1.0f;     //소음 반경
-    public Action<Transform> onFind;
-    public Transform? origin;       //호출한 오브젝트의 위치
+    public Action<Vector3> onFind;
+    public Transform origin;       //호출한 오브젝트의 위치
 
     WaitForSeconds existTime = new WaitForSeconds(0.1f);
     float Radius 
@@ -52,9 +52,9 @@ public class NoiseSystem : RecycleObject
             
             foreach (EnemyBace entity in enemies)
             {
-                onFind += (origin) => entity.OnDetect(origin);
+                onFind += (originPos) => entity.OnDetect(origin.position);
             }
-            onFind?.Invoke(origin);
+            onFind?.Invoke(origin.position);
         }
     }
 

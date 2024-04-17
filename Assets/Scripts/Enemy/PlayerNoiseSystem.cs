@@ -52,7 +52,7 @@ public class PlayerNoiseSystem : RecycleObject
             
             foreach (EnemyBace entity in enemies)
             {
-                onPlayerFind += (origin) => entity.OnDetect(origin);
+                onPlayerFind += (origin) => entity.OnDetect(origin, Radius);
             }
             onPlayerFind?.Invoke(origin);
         }

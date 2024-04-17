@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class DoorManualCycle : DoorManual
 {
-    public float cycle = 1200.0f;    //20분
+    [Range(600, 1200)]  //(10분-20분)
+    public float cycle = 1200.0f;
     public float openPeriod = 300.0f; //5분
 
     float cycleTime = 0.0f;
