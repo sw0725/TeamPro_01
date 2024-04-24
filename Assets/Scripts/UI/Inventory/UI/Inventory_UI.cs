@@ -12,40 +12,24 @@ public class Inventory_UI : MonoBehaviour
 
     Inventory inventory;
 
+    public Inventory Inventory => inventory;
+
     Slot_UI[] slotsUI;
-
-    //DragSlotUI dragSlotUI;
-
-    SelectMenuUI select;
 
     DropSlotUI dropSlot;
 
     WeightPanel_UI weightPanel;
 
-    MoneyPanel_UI moneyPanel;
-
     InventoryManager invenManager;
 
     RectTransform invenTransform;
+
+    Button sortButton;
 
     Player Owner => inventory.Owner;
 
     CanvasGroup canvas;
 
-    // 무게는 이후에 플레이어로 옮긴 이후 무게에 따라서 이동속도 변환 기믹 구현하기
-    int weight = 0;
-    public int Weight
-    {
-        get => weight;
-        set
-        {
-            if (weight != value)
-            {
-                weight = Math.Max(0, value);
-                onWeightChange?.Invoke(weight);
-            }
-        }
-    }
 
     int money = 0;
 
@@ -90,16 +74,17 @@ public class Inventory_UI : MonoBehaviour
         slotsUI = child.GetComponentsInChildren<Slot_UI>();
 
         child = transform.GetChild(1);
-        select = child.GetComponent<SelectMenuUI>();
-
-        child = transform.GetChild(2);
         dropSlot = child.GetComponent<DropSlotUI>();
 
-        child = transform.GetChild(3);
+        child = transform.GetChild(2);
         weightPanel = child.GetComponent<WeightPanel_UI>();
 
-        child = transform.GetChild(4);
-        moneyPanel = child.GetComponent<MoneyPanel_UI>();
+        child = transform.GetChild(3);
+        sortButton = child.GetComponent<Button>();
+        sortButton.onClick.AddListener(() =>
+        {
+            OnItemSort(ItemType.Buff);
+        });
 
         invenManager = GetComponentInParent<InventoryManager>();
 
@@ -136,29 +121,26 @@ public class Inventory_UI : MonoBehaviour
         }
         invenManager.DragSlot.InitializeSlot(inventory.DragSlot);  // 임시 슬롯 초기화
 
-        select.onItemDrop += OnItemDrop;
-        select.onItemSort += (by) =>
-        {
-            inventory.MergeItems();
-            OnItemSort(by);
-        };
-        select.Close();
-
         dropSlot.onDropOk += OnDropOk;
         dropSlot.Close();
 
-        onWeightChange += weightPanel.Refresh;
-        weightPanel.Refresh(Weight);
+        Owner.onWeightChange += weightPanel.Refresh;
+        weightPanel.Refresh(Owner.Weight);
 
-        onMoneyChange += moneyPanel.Refresh;
-        moneyPanel.Refresh(Money);
+        inventory.onReload += GameManager.Instance.WeaponBase.ReLoad;
 
         Close();
     }
 
+    private void Start()
+    {
+        GameManager.Instance.WeaponBase.onReload += inventory.Reload;
+    }
+
     public void PlusValue(ItemSlot slot)
     {
-        inventory.PlusValue(slot, (int)slot.ItemCount);
+        Money += (int)slot.ItemData.Price;
+        Owner.Weight += slot.ItemData.weight;
     }
 
     /// <summary>
@@ -177,7 +159,7 @@ public class Inventory_UI : MonoBehaviour
         game.WorldInventory_UI.Money += Money;
         inventory.ClearInventory();
         Money = 0;
-        Weight = 0;
+        Owner.Weight = 0;
 
         // 이후에 메인화면으로 나가기
     }
@@ -194,6 +176,8 @@ public class Inventory_UI : MonoBehaviour
         inventory.MoveItem(slot, invenManager.DragSlot.ItemSlot);
         invenManager.DragSlot.Open();
     }
+
+
 
     /// <summary>
     /// 아이템 드래그가 끝이나면 실행되는 함수
@@ -243,7 +227,7 @@ public class Inventory_UI : MonoBehaviour
     {
         // 버리기, 상세보기 등 UI따로 띄우기
         Slot_UI target = slotsUI[index];
-        select.Open(target.ItemSlot);
+        dropSlot.Open(target.ItemSlot);
     }
 
     /// <summary>
@@ -253,18 +237,6 @@ public class Inventory_UI : MonoBehaviour
     private void OnItemSort(ItemType type)
     {
         inventory.SlotSorting(type, true);
-        select.Close();
-    }
-
-    /// <summary>
-    /// 아이템을 버리는 함수
-    /// </summary>
-    /// <param name="index"></param>
-    private void OnItemDrop(uint index)
-    {
-        Slot_UI target = slotsUI[index];
-        select.Close();
-        dropSlot.Open(target.ItemSlot);
     }
 
     /// <summary>

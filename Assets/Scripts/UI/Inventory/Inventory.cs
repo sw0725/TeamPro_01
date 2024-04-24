@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static BulletBase;
 
 // 아이템 획득 시 인벤토리에 넣어주는 클래스
 public class Inventory
@@ -24,7 +26,11 @@ public class Inventory
     Player owner;
 
     public Player Owner => owner;
-    
+
+    public Action<int> onReload;
+
+
+
 
     public Inventory(Player owner, uint size = Default_Inventory_Size)
     {
@@ -50,9 +56,12 @@ public class Inventory
         {
             if (AddItem(code, (uint)i))
             {
+                invenUI.Money += (int)slots[i].ItemData.Price;
+                Owner.Weight += slots[i].ItemData.weight;
                 return true;
             }
         }
+
         return false;
     }
 
@@ -62,7 +71,7 @@ public class Inventory
     /// <param Name="code">추가할 아이템의 코드</param>
     /// <param Name="slotIndex">아이템을 추가할 슬롯의 인덱스</param>
     /// <returns>true면 성공 false면 추가 실패</returns>
-    public bool AddItem(ItemCode code, uint slotIndex, int count = 1)
+    public bool AddItem(ItemCode code, uint slotIndex)
     {
         bool result = false;
 
@@ -74,7 +83,6 @@ public class Inventory
             {
                 // 슬롯이 비었으면
                 slot.AssignSlotItem(data);          // 그대로 아이템 설정
-                PlusValue(slot, count);
                 result = true;
             }
             else
@@ -84,7 +92,6 @@ public class Inventory
                 {
                     // 같은 종류의 아이템이면
                     result = slot.SetSlotCount(out _);   // 아이템 증가 시도
-                    PlusValue(slot, count);
                 }
                 else
                 {
@@ -101,7 +108,6 @@ public class Inventory
 
     public void RemoveItem(uint slotIndex, uint count = 1)
     {
-        if (IsValidIndex(slotIndex))
         {
             ItemSlot slot = slots[slotIndex];
             MinusValue(slot, (int)count);
@@ -109,6 +115,37 @@ public class Inventory
         }
     }
 
+    int RemoveBullet(ItemCode type, uint count = 1)
+    {
+        int result = 0;
+        for (uint i = 0; i < SlotCount; i++)
+        {
+            // 슬롯이 안 비어있다.
+            if (!slots[i].IsEmpty /*&& slots[i].ItemData.bulletType == type*/)
+            {
+                ItemSlot slot = slots[i];      // 슬롯 가져오기
+                if (slot.ItemCount < count)
+                {
+                    // 필요한 총알 수 보다 슬롯에 있는 총알이 적다.
+                    result += (int)slot.ItemCount;
+                    MinusValue(slot, result);
+                    count -= slot.ItemCount;
+                    slot.DecreaseSlotItem(slot.ItemCount);
+                }
+                else
+                {
+                    // 필요한 총알 수 보다 슬롯에 있는 총알이 많거나 같다.
+                    result += (int)count;
+                    MinusValue(slot, (int)count);
+                    slot.DecreaseSlotItem(count);
+                    break;
+                }
+                
+            }
+        }
+        Debug.Log(result);
+        return result;
+    }
 
     public void MoveItem(ItemSlot from, ItemSlot to)
     {
@@ -224,26 +261,16 @@ public class Inventory
         }
     }
 
-    public void ClearSlot(uint slotIndex)
-    {
-        if (IsValidIndex(slotIndex))
-        {
-            ItemSlot slot = slots[slotIndex];
-            slot.ClearSlot();
-        }
-    }
-
     public void ClearInventory()
     {
         foreach(var slot in slots)
         {
             slot.ClearSlot();
+            MinusValue(slot, (int)slot.ItemCount);
         }
+        Owner.Weight = 0.0f;
         
     }
-
-
-
 
 
     /// <summary>
@@ -287,36 +314,52 @@ public class Inventory
         }
     }
 
+    public void MinusValue(ItemSlot slot, int count)
+    {
+        if (slot.ItemData != null)
+        {
+            Owner.Weight -= (int)(slot.ItemData.weight * count);
+        }
+    }
+
     /// <summary>
     /// 인벤토리 내부에서 특정 한 아이템을 찾는 함수
     /// </summary>
     /// <param name="itemType">특정한 아이템의 타입</param>
     /// <returns>true면 아이템이 인벤토리 내부에 있다, false면 없다.</returns>
-    public bool FindItem(ItemType itemType)
+    public bool FindItem(ItemCode code)
     {
+        bool result = false;
         for (int i = 0; i < SlotCount; i++)
         {
-            if (!slots[i].IsEmpty && slots[i].ItemData.itemType == itemType)
+            if (!slots[i].IsEmpty && slots[i].ItemData.itemId == code)
             {
                 Debug.Log("열쇠 확인");
-                return true; // 아이템을 찾았으면 즉시 true를 반환하고 종료
+                slots[i].DecreaseSlotItem();
+                result = true;
+                break;
             }
         }
         Debug.Log("열쇠 찾지 못함");
-        return false; // 루프를 끝까지 돌았는데도 아이템을 찾지 못했으면 false 반환
+        return result; // 루프를 끝까지 돌았는데도 아이템을 찾지 못했으면 false 반환
     }
 
-    public int Reload(int ammo) // 변수를 탄종과 개수로 바꾸기
+    /// <summary>
+    /// 총알을 장전하는 함수
+    /// </summary>
+    /// <param name="type">장전할 총알의 타입</param>
+    /// <param name="count">장전할 총알의 개수</param>
+    public void Reload(ItemCode type, int count)
     {
-        // 1. 장비창에 있는 탄창? 이랑 같은 종류의 총알 찾고
-        // 2. 탄창의 최대치 - 현재 수치 만큼 인벤토리에서 빼기
-        // 3. 필요 수치가 인벤토리에 있는 수 보다 크면 있는거 다 주고 인벤토리에서 지우기
-   
-        // 델리게이트로 탄종, 탄알 개수 받아서
-        // 장비 데이터에있는 리로드 함수와 연결하기
-     
+        onReload?.Invoke(RemoveBullet(type, (uint)count));
+    }
 
-        return ammo;
+    /// <summary>
+    /// 플레이어가 사망하거나 중간에 나갔을 때 인벤토리를 비우는 함수
+    /// </summary>
+    public void GameOver()
+    {
+        ClearInventory();
     }
 
 
@@ -352,28 +395,7 @@ public class Inventory
         Debug.Log($"[{invenInfo}]");
     }
 
-    /// <summary>
-    /// 임시로 쓰는 함수, 나중에 돈 개수로 바꾸기 위해 이곳에 배치
-    /// </summary>
-    /// <param name="slot"></param>
-    public void PlusValue(ItemSlot slot, int count = 1)
-    {
-        if (slot.ItemData != null)
-        {
-            invenUI.Money += (int)(slot.ItemData.Price) * count;
-            invenUI.Weight += (int)(slot.ItemData.weight) * count;
-        }
-    }
 
-    public void MinusValue(ItemSlot slot, int count = 1)
-    {
-        if (slot.ItemData != null)
-        {
-            invenUI.Money -= (int)(slot.ItemData.Price * count);
-            invenUI.Weight -= (int)(slot.ItemData.weight * count);
-        }
-
-    }
 
 #endif
 

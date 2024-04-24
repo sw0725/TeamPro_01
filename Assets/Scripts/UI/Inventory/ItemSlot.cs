@@ -81,6 +81,24 @@ public class ItemSlot
             ItemData = item;
             ItemCount = count;
             IsEquiped = isEquipped;
+
+            // 총알아이템을 BulletType으로 확인하는 함수
+            //if (ItemData.itemId == ItemCode.PistolBullet)
+            //{
+            //    ItemData.bulletType = BulletBase.BulletType.Pistolbullet;
+            //}
+            //else if (ItemData.itemId == ItemCode.RifleBullet)
+            //{
+            //    ItemData.bulletType = BulletBase.BulletType.Riflebullet;
+            //}
+            //else if (ItemData.itemId == ItemCode.ShotgunBullet)
+            //{
+            //    ItemData.bulletType = BulletBase.BulletType.Shotgunbullet;
+            //}
+            //else if (ItemData.itemId == ItemCode.SniperBullet)
+            //{
+            //    ItemData.bulletType = BulletBase.BulletType.Sniperbullet;
+            //}
         }
         else
         {

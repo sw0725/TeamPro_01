@@ -222,14 +222,14 @@ public class WorldInventory
         }
     }
 
-    public void ClearSlot(uint slotIndex)
-    {
-        if (IsValidIndex(slotIndex))
-        {
-            ItemSlot slot = slots[slotIndex];
-            slot.ClearSlot();
-        }
-    }
+    //public void ClearSlot(uint slotIndex)
+    //{
+    //    if (IsValidIndex(slotIndex))
+    //    {
+    //        ItemSlot slot = slots[slotIndex];
+    //        slot.ClearSlot();
+    //    }
+    //}
 
     public void ClearInventory()
     {
@@ -338,10 +338,7 @@ public class WorldInventory
     {
         if (slot.ItemData != null)
         {
-            //if (slot.ItemData.itemType == ItemType.Price)
-            //{
-                worldInven.Money += (int)(slot.ItemData.Price * count);
-            //}
+            worldInven.Money += (int)(slot.ItemData.Price * count);
         }
     }
 
@@ -349,10 +346,7 @@ public class WorldInventory
     {
         if (slot.ItemData != null)
         {
-            //if (slot.ItemData.itemType == ItemType.Price)
-            //{
-                worldInven.Money -= (int)(slot.ItemData.Price * count);
-            //}
+            worldInven.Money -= (int)(slot.ItemData.Price * count);
         }
     }
 

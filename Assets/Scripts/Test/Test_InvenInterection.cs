@@ -90,7 +90,7 @@ public class Test_InvenInterection : TestBase
     protected override void OnTest3(InputAction.CallbackContext context)
     {
         // 이동
-        inven.FindItem(ItemType.Key);
+        inven.FindItem(ItemCode.Key);
     }
 
     protected override void OnTest4(InputAction.CallbackContext context)

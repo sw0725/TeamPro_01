@@ -16,14 +16,13 @@ public class WorldInventory_UI : MonoBehaviour
 
     InventoryManager invenManager;
 
-
-    //DragSlotUI worldDragSlotUI;
-
     WorldSelectMenuUI worldSelect;
 
     DropSlotUI worldDropSlot;
 
     SellItemUI worldSellItem;
+
+    Button sortButton;
 
     Scrollbar scrollbar;
 
@@ -59,13 +58,24 @@ public class WorldInventory_UI : MonoBehaviour
         Transform child = transform.GetChild(0);
         worldSlotUI = child.GetComponentsInChildren<Slot_UI>();
 
-        worldSelect = GetComponentInChildren<WorldSelectMenuUI>();
+        child = transform.GetChild(1);
+        worldSelect = child.GetComponent<WorldSelectMenuUI>();
 
-        worldDropSlot = GetComponentInChildren<DropSlotUI>();
+        child = transform.GetChild(2);
+        worldDropSlot = child.GetComponent<DropSlotUI>();
 
-        worldSellItem = GetComponentInChildren<SellItemUI>();
+        child = transform.GetChild(3);
+        worldSellItem = child.GetComponent<SellItemUI>();
 
-        moneyPanel = GetComponentInChildren<MoneyPanel_UI>();
+        child = transform.GetChild(4);
+        moneyPanel = child.GetComponent<MoneyPanel_UI>();
+
+        child = transform.GetChild(5);
+        sortButton = child.GetComponent<Button>();
+        sortButton.onClick.AddListener(() =>
+        {
+            OnItemSort(ItemType.Buff);
+        });
 
         scrollbar = GetComponentInChildren<Scrollbar>();
 
@@ -95,11 +105,6 @@ public class WorldInventory_UI : MonoBehaviour
         worldDropSlot.onDropOk += OnDropOk;
         worldDropSlot.Close();
 
-        worldSelect.onItemSort += (by) =>
-        {
-            worldInven.MergeItems();
-            OnItemSort(by);
-        };
         worldSelect.onItemSell += OnItemSell;
         worldSellItem.Close();
 
@@ -119,12 +124,6 @@ public class WorldInventory_UI : MonoBehaviour
     public void PlusValue(ItemSlot slot)
     {
         worldInven.PlusMoney(slot, (int)slot.ItemCount);
-    }
-
-
-    public void cleanInventory(Inventory_UI inven)
-    {
-        Money += inven.Money;
     }
 
     /// <summary>
@@ -193,7 +192,6 @@ public class WorldInventory_UI : MonoBehaviour
     private void OnItemSort(ItemType type)
     {
         worldInven.SlotSorting(type, true);
-        worldSelect.Close();
     }
 
     /// <summary>

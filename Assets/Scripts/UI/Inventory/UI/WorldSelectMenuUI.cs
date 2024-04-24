@@ -12,11 +12,6 @@ public class WorldSelectMenuUI : MonoBehaviour
     ItemSlot targetSlot;
 
     /// <summary>
-    /// 정렬버튼을 누르면 호출되는 델리게이트
-    /// </summary>
-    public Action<ItemType> onItemSort;
-
-    /// <summary>
     /// 버리기 버튼을 누르면 호출되는 델리게이트
     /// </summary>
     public Action<uint> onItemDrop;
@@ -41,13 +36,6 @@ public class WorldSelectMenuUI : MonoBehaviour
         });
 
         child = transform.GetChild(1);
-        Button sortButton = child.GetComponent<Button>();
-        sortButton.onClick.AddListener(() =>
-        {
-            onItemSort?.Invoke(ItemType.Buff);
-        });
-
-        child = transform.GetChild(2);
         Button sellButton = child.GetComponent<Button>();
         sellButton.onClick.AddListener(() =>
         {

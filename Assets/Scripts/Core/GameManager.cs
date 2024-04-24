@@ -1,29 +1,35 @@
 public class GameManager : Singleton<GameManager>
 {
-    // ÇÃ·¹ÀÌ¾î, ¾ÆÀÌÅÛ µ¥ÀÌÅÍ °ü¸®ÀÚ, ÀÎº¥Åä¸® UI º¯¼ö ¼±¾ğ
+    // í”Œë ˆì´ì–´, ì•„ì´í…œ ë°ì´í„° ê´€ë¦¬ì, ì—¬ëŸ¬ ì¸ë²¤í† ë¦¬ UI ë³€ìˆ˜ ì„ ì–¸
     private Player player;
     private ItemDataManager itemDataManager;
     private Inventory_UI inventoryUI;
     private WorldInventory_UI worldInventoryUI;
     private TimeSystem timeSys;
+    private WeaponBase weaponBase;
+    private ShopInventoryUI shopInventoryUI; // ìƒµ ì¸ë²¤í† ë¦¬ UI ì¶”ê°€
 
-    // ÇÃ·¹ÀÌ¾î, ¾ÆÀÌÅÛ µ¥ÀÌÅÍ °ü¸®ÀÚ, ÀÎº¥Åä¸® UI ¼Ó¼º Á¤ÀÇ
+    // í”Œë ˆì´ì–´, ì•„ì´í…œ ë°ì´í„° ê´€ë¦¬ì, ì—¬ëŸ¬ ì¸ë²¤í† ë¦¬ UI ì†ì„± ì •ì˜
     public Player Player => player;
     public ItemDataManager ItemData => itemDataManager;
     public Inventory_UI InventoryUI => inventoryUI;
     public WorldInventory_UI WorldInventory_UI => worldInventoryUI;
     public TimeSystem TimeSystem => timeSys;
+    public WeaponBase WeaponBase => weaponBase;
+    public ShopInventoryUI ShopInventoryUI => shopInventoryUI; // ìƒµ ì¸ë²¤í† ë¦¬ UIì— ëŒ€í•œ í”„ë¡œí¼í‹° ì¶”ê°€
 
-    // ÃÊ±âÈ­ ´Ü°è¿¡¼­ ÇÃ·¹ÀÌ¾î, ¾ÆÀÌÅÛ µ¥ÀÌÅÍ °ü¸®ÀÚ, ÀÎº¥Åä¸® UI ÃÊ±âÈ­
+    // ì´ˆê¸°í™” ë‹¨ê³„ì—ì„œ í”Œë ˆì´ì–´, ì•„ì´í…œ ë°ì´í„° ê´€ë¦¬ì, ì¸ë²¤í† ë¦¬ UI ì´ˆê¸°í™”
     protected override void OnInitialize()
     {
         player = FindAnyObjectByType<Player>();
         inventoryUI = FindAnyObjectByType<Inventory_UI>();
         worldInventoryUI = FindAnyObjectByType<WorldInventory_UI>();
         timeSys = FindAnyObjectByType<TimeSystem>();
+        weaponBase = FindAnyObjectByType<WeaponBase>();
+        shopInventoryUI = FindAnyObjectByType<ShopInventoryUI>(); // ìƒµ ì¸ë²¤í† ë¦¬ UI ì´ˆê¸°í™”
     }
 
-    // ¾ÆÀÌÅÛ µ¥ÀÌÅÍ °ü¸®ÀÚ ÃÊ±âÈ­ Àü¿¡ È£ÃâµÇ´Â ÃÊ±âÈ­ ´Ü°è
+    // ì•„ì´í…œ ë°ì´í„° ê´€ë¦¬ì ì´ˆê¸°í™” ì „ì— í˜¸ì¶œë˜ëŠ” ì´ˆê¸°í™” ë‹¨ê³„
     protected override void OnPreInitialize()
     {
         base.OnPreInitialize();

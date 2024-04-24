@@ -18,9 +18,6 @@ public class WeightPanel_UI : MonoBehaviour
 
         child = transform.GetChild(2);
         max = child.GetComponent<TextMeshProUGUI>();
-
-        
-
     }
 
     private void Start()
@@ -29,16 +26,13 @@ public class WeightPanel_UI : MonoBehaviour
         if (player != null)
         {
             maxWeight = player.MaxWeight;
-            max.text = $" / {maxWeight}KG";
-
-            // 나중에 장비창 만든 이후 총 무게로 바꿀 것!!
-            // 플레이어를 찾지를 못해서 0이되네 왜지;;
+            max.text = $" / {(maxWeight):f1}KG";
         }
     }
 
-    public void Refresh(int weight)
+    public void Refresh(float weight)
     {
-        current.text = $"{weight}";
+        current.text = $"{(weight):f1}";
         if(weight > maxWeight)
         {
             current.color = Color.red;

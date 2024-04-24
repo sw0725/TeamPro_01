@@ -1,46 +1,59 @@
 using System;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class ShopInventoryUI : MonoBehaviour
 {
-    public GameObject slotPrefab;
-    public Transform slotParent;
-    private ShopInventory shopInventory;
-
-    private Slot_UI[] shopSlots;
+    public Slot_UI[] shopSlots; // 상점 슬롯 배열
+    public RectTransform shopTransform; // 상점의 RectTransform
+    public CanvasGroup canvas; // 상점 UI의 CanvasGroup
+    public ShopBuyMenuUI shopBuyMenu; // ShopBuyMenuUI 컴포넌트 참조
 
     private void Awake()
     {
-        shopInventory = GetComponent<ShopInventory>();
-        InitializeSlots();
+        Transform child = transform.GetChild(0);
+        shopSlots = child.GetComponentsInChildren<Slot_UI>();
+        shopTransform = GetComponent<RectTransform>();
+        canvas = GetComponent<CanvasGroup>();
+        shopBuyMenu = GetComponentInChildren<ShopBuyMenuUI>(); // ShopBuyMenuUI 컴포넌트 찾기
+
+        InitializeShop();
     }
 
-    private void InitializeSlots()
+    public void InitializeShop()
     {
-        // 슬롯 UI 배열 생성
-        shopSlots = new Slot_UI[shopInventory.Items.Count];
-
-        for (int i = 0; i < shopInventory.Items.Count; i++)
+        foreach (Slot_UI slot in shopSlots)
         {
-            GameObject slotObject = Instantiate(slotPrefab, slotParent);
-            Slot_UI shopSlot = slotObject.GetComponent<Slot_UI>();
+            slot.onRightClick += OnItemRightClick; // 우클릭 이벤트 연결
+        }
+    }
 
-            if (shopSlot != null)
+    private void OnItemRightClick(uint index)
+    {
+        if (index < shopSlots.Length)
+        {
+            Slot_UI targetSlot = shopSlots[index];
+            if (!targetSlot.ItemSlot.IsEmpty)
             {
-                // 아이템 데이터만 전달
-                shopSlots[i] = shopSlot;
-
-                // 우클릭 이벤트 리스너 연결
-                int index = i; // 클로저를 사용하여 캡처하기 위해 index 변수를 따로 생성
-                shopSlot.onRightClick += HandleRightClick;
+                shopBuyMenu.Open(targetSlot.ItemSlot);
+                shopBuyMenu.MovePosition(Mouse.current.position.ReadValue());
             }
         }
     }
 
-    private void HandleRightClick(uint obj)
+    // 상점 열기 함수
+    public void Open()
     {
-        // 우클릭 시 실행될 로직
-        Debug.Log($"Right-clicked on item slot {obj}");
-        // 여기에서 index를 사용하여 해당 슬롯에 대한 데이터 또는 처리를 수행할 수 있습니다.
+        canvas.alpha = 1;
+        canvas.interactable = true;
+        canvas.blocksRaycasts = true;
+    }
+
+    // 상점 닫기 함수
+    public void Close()
+    {
+        canvas.alpha = 0;
+        canvas.interactable = false;
+        canvas.blocksRaycasts = false;
     }
 }
