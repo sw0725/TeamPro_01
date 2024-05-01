@@ -11,6 +11,7 @@ public class WorldInventory_UI : MonoBehaviour
 {
 
     WorldInventory worldInven;
+    public WorldInventory WorldInven => worldInven;
 
     Slot_UI[] worldSlotUI;
 

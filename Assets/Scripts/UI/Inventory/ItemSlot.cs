@@ -81,24 +81,6 @@ public class ItemSlot
             ItemData = item;
             ItemCount = count;
             IsEquiped = isEquipped;
-
-            // 총알아이템을 BulletType으로 확인하는 함수
-            //if (ItemData.itemId == ItemCode.PistolBullet)
-            //{
-            //    ItemData.bulletType = BulletBase.BulletType.Pistolbullet;
-            //}
-            //else if (ItemData.itemId == ItemCode.RifleBullet)
-            //{
-            //    ItemData.bulletType = BulletBase.BulletType.Riflebullet;
-            //}
-            //else if (ItemData.itemId == ItemCode.ShotgunBullet)
-            //{
-            //    ItemData.bulletType = BulletBase.BulletType.Shotgunbullet;
-            //}
-            //else if (ItemData.itemId == ItemCode.SniperBullet)
-            //{
-            //    ItemData.bulletType = BulletBase.BulletType.Sniperbullet;
-            //}
         }
         else
         {
@@ -165,7 +147,7 @@ public class ItemSlot
         Player player = GameManager.Instance.Player;
         if(player != null)
         {
-            //player.Equipment(this);   // 플레이어 안에있는 장비를 장착하는 함수 사용
+            //player.EquipItem(ItemData.itemPrefab ,this);   // 플레이어 안에있는 장비를 장착하는 함수 사용
         }
     }
 }

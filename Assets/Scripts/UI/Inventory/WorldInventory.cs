@@ -78,7 +78,6 @@ public class WorldInventory
             {
                 // 슬롯이 비었으면
                 slot.AssignSlotItem(data);          // 그대로 아이템 설정
-                PlusMoney(slot);
                 result = true;
             }
             else
@@ -87,20 +86,29 @@ public class WorldInventory
                 if (slot.ItemData == data)
                 {
                     // 같은 종류의 아이템이면
-                    PlusMoney(slot);
                     result = slot.SetSlotCount(out _);   // 아이템 증가 시도
                 }
                 else
                 {
                     // 다른 종류의 아이템
+                    
                 }
             }
         }
         else
         {
             // 잘못된 슬롯
+            return false;
         }
         return result;
+    }
+
+    public void AddItem(ItemCode code, int count)
+    {
+        for (int i = 0; i <= count; i++)
+        {
+            AddItem(code);
+        }
     }
 
     public void RemoveItem(uint slotIndex, uint count = 1)
@@ -110,6 +118,44 @@ public class WorldInventory
             ItemSlot slot = slots[slotIndex];
             slot.DecreaseSlotItem(count);
         }
+    }
+
+    /// <summary>
+    /// 특정 아이템을 count만큼 인벤토리에서 제거하는 함수
+    /// </summary>
+    /// <param name="code">제거할 아이템</param>
+    /// <param name="count">제거할 개수</param>
+    /// <returns>제거한 아이템의 수</returns>
+    public int RemoveItem(ItemCode code, uint count = 1)
+    {
+        int result = 0;
+        for (uint i = 0; i < SlotCount; i++)
+        {
+            // 슬롯이 안 비어있다.
+            if (!slots[i].IsEmpty /*&& slots[i].ItemData.bulletType == code*/)
+            {
+                ItemSlot slot = slots[i];      // 슬롯 가져오기
+                if (slot.ItemCount < count)
+                {
+                    // 필요한 총알 수 보다 슬롯에 있는 총알이 적다.
+                    result += (int)slot.ItemCount;
+                    MinusMoney(slot, result);
+                    count -= slot.ItemCount;
+                    slot.DecreaseSlotItem(slot.ItemCount);
+                }
+                else
+                {
+                    // 필요한 총알 수 보다 슬롯에 있는 총알이 많거나 같다.
+                    result += (int)count;
+                    MinusMoney(slot, (int)count);
+                    slot.DecreaseSlotItem(count);
+                    break;
+                }
+
+            }
+        }
+        Debug.Log(result);
+        return result;
     }
 
 
@@ -294,7 +340,25 @@ public class WorldInventory
         return false; // 루프를 끝까지 돌았는데도 아이템을 찾지 못했으면 false 반환
     }
 
+        /// <summary>
+    /// 임시로 쓰는 함수, 나중에 돈 개수로 바꾸기 위해 이곳에 배치
+    /// </summary>
+    /// <param name="slot"></param>
+    public void PlusMoney(ItemSlot slot, int count = 1)
+    {
+        if (slot.ItemData != null)
+        {
+            worldInven.Money += (int)(slot.ItemData.Price * count);
+        }
+    }
 
+    public void MinusMoney(ItemSlot slot, int count = 1)
+    {
+        if (slot.ItemData != null)
+        {
+            worldInven.Money -= (int)(slot.ItemData.Price * count);
+        }
+    }
 
 
 
@@ -330,25 +394,7 @@ public class WorldInventory
         Debug.Log($"[{invenInfo}]");
     }
 
-    /// <summary>
-    /// 임시로 쓰는 함수, 나중에 돈 개수로 바꾸기 위해 이곳에 배치
-    /// </summary>
-    /// <param name="slot"></param>
-    public void PlusMoney(ItemSlot slot, int count = 1)
-    {
-        if (slot.ItemData != null)
-        {
-            worldInven.Money += (int)(slot.ItemData.Price * count);
-        }
-    }
 
-    public void MinusMoney(ItemSlot slot, int count = 1)
-    {
-        if (slot.ItemData != null)
-        {
-            worldInven.Money -= (int)(slot.ItemData.Price * count);
-        }
-    }
 
 #endif
 

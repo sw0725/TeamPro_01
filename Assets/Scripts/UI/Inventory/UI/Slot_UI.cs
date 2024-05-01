@@ -43,7 +43,7 @@ public class Slot_UI : Slot_UI_Base, IPointerClickHandler, IBeginDragHandler, IE
         }
         else
         {
-            RectTransform rect = transform.parent.parent.parent.parent.GetComponent<RectTransform>();
+            RectTransform rect = GetComponent<RectTransform>();
             OnClick?.Invoke(ItemSlot, rect);
         }
     }
@@ -66,13 +66,13 @@ public class Slot_UI : Slot_UI_Base, IPointerClickHandler, IBeginDragHandler, IE
             }
             else
             {
-                RectTransform rect = transform.parent.parent.parent.parent.GetComponent<RectTransform>();
+                RectTransform rect = GetComponent<RectTransform>();
                 onDragEnd?.Invoke(ItemSlot, rect);
             }
         }
         else
         {
-            RectTransform rect = transform.parent.parent.parent.parent.GetComponent<RectTransform>();
+            RectTransform rect = GetComponent<RectTransform>();
             onDragEnd?.Invoke(ItemSlot, rect);
         }
     }

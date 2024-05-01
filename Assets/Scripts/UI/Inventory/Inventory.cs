@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using static BulletBase;
 
@@ -106,6 +107,14 @@ public class Inventory
         return result;
     }
 
+    public void AddItem(ItemCode code, int count)
+    {
+        for (int i = 0; i <= count; i++)
+        {
+            AddItem(code);
+        }
+    }
+
     public void RemoveItem(uint slotIndex, uint count = 1)
     {
         {
@@ -115,13 +124,19 @@ public class Inventory
         }
     }
 
-    int RemoveBullet(ItemCode type, uint count = 1)
+    /// <summary>
+    /// 특정 아이템을 count만큼 인벤토리에서 제거하는 함수
+    /// </summary>
+    /// <param name="code">제거할 아이템</param>
+    /// <param name="count">제거할 개수</param>
+    /// <returns>제거한 아이템의 수</returns>
+    public int RemoveItem(ItemCode code, uint count = 1)
     {
         int result = 0;
         for (uint i = 0; i < SlotCount; i++)
         {
             // 슬롯이 안 비어있다.
-            if (!slots[i].IsEmpty /*&& slots[i].ItemData.bulletType == type*/)
+            if (!slots[i].IsEmpty /*&& slots[i].ItemData.bulletType == code*/)
             {
                 ItemSlot slot = slots[i];      // 슬롯 가져오기
                 if (slot.ItemCount < count)
@@ -345,13 +360,38 @@ public class Inventory
     }
 
     /// <summary>
+    /// 아이템을 구매할 수 있는지 확인하는 함수
+    /// </summary>
+    /// <param name="code">구매할 아이템</param>
+    /// <param name="count"></param>
+    /// <returns></returns>
+    public bool BuyPosible(ItemCode code, int count) 
+    {
+        bool result = false;
+        int itemCount = 0;
+        foreach(ItemSlot slot in slots)
+        {
+            if(slot.ItemData.itemId == code)
+            {
+                itemCount += (int)slot.ItemCount;
+            }
+        }
+        if ( count > itemCount)
+        {
+            return true;
+        }
+
+        return result;
+    }
+
+    /// <summary>
     /// 총알을 장전하는 함수
     /// </summary>
     /// <param name="type">장전할 총알의 타입</param>
     /// <param name="count">장전할 총알의 개수</param>
     public void Reload(ItemCode type, int count)
     {
-        onReload?.Invoke(RemoveBullet(type, (uint)count));
+        onReload?.Invoke(RemoveItem(type, (uint)count));
     }
 
     /// <summary>

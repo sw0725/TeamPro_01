@@ -40,10 +40,10 @@ public class Test_Shop : MonoBehaviour
 
     void BuyItem(ItemCode itemCode)
     {
-        ItemData itemData = shopInventory.GetItem(itemCode);
-        if (itemData != null && worldInventory.AddItem(itemCode))
+        //ItemData itemData = GameManager.Instance.InventoryUI.Inventory.GetItem(itemCode);
+        if (/*itemData != null && */worldInventory.AddItem(itemCode))
         {
-            shopInventory.RemoveItem(itemCode);
+            GameManager.Instance.InventoryUI.Inventory.RemoveItem(itemCode);
             Debug.Log($"Purchased {itemCode} and added to the world inventory.");
         }
         else

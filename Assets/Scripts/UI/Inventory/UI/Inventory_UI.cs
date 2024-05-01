@@ -134,7 +134,10 @@ public class Inventory_UI : MonoBehaviour
 
     private void Start()
     {
-        GameManager.Instance.WeaponBase.onReload += inventory.Reload;
+        if (GameManager.Instance.WeaponBase != null)
+        {
+            GameManager.Instance.WeaponBase.onReload += inventory.Reload;
+        }
     }
 
     public void PlusValue(ItemSlot slot)
@@ -185,7 +188,13 @@ public class Inventory_UI : MonoBehaviour
     /// <param name="index">끝난 슬롯의 index</param>
     private void OnItemMoveEnd(ItemSlot slot, RectTransform rect)
     {
+        // if(rect != 장비창의 RectTransform)
         inventory.MoveItem(invenManager.DragSlot.ItemSlot, slot);
+        // 
+
+        // else
+        // 장비창이 가지고 있는 함수 실행;
+        // 인벤토리에 다시 아이템 가져오고 isEqupped = true 해주기
 
         WorldInventory_UI worldInven;
         worldInven = rect.GetComponentInParent<WorldInventory_UI>();
