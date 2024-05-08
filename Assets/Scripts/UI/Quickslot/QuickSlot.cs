@@ -7,57 +7,11 @@ using UnityEngine;
 
 public class QuickSlot : MonoBehaviour
 {
-    //private Player player;
-    //private GameObject quickSlot;
-    //private Action quickSlotSelect;
-    //public Equip equip;
-    //GameObject item;
-    //[Tooltip("ª˝º∫«“ æ∆¿Ã≈€ ø¿∫Í¡ß∆Æ¿« ∫Œ∏ ø¿∫Í¡ß∆Æ")]
-    //[SerializeField] private GameObject itemPostion;
-
-    //private void Awake()
-    //{
-    //    equip = FindObjectOfType<Equip>(true);
-    //    quickSlot = Fin
-    //}
-
-    //private void Start()
-    //{
-    //    player = FindObjectOfType<Player>();
-    //}
-
-    /// <summary>
-    /// º±≈√«— æ∆¿Ã≈€ ø¿∫Í¡ß∆Æ ª˝º∫
-    /// </summary>
-    /// <param name="index"></param>
-    //public void ItemObjectCreate(uint index)
-    //{
-    //    if (item == null)
-    //    {
-    //        item = equip.slots[index].ItemData.itemPrefab;
-    //        Instantiate(item, itemPostion.transform.position, Quaternion.identity, transform);
-    //    }
-    //    else
-    //    {
-    //        Destroy(item);
-    //        item = equip.slots[index].ItemData.itemPrefab;
-    //    }
-    //}
-
-    //public void ItemInputEventEnroll()
-    //{
-    //     æ∆¿Ã≈€¿« use «‘ºˆ ¿Ã∫•∆Æ µÓ∑œ
-    //}
-
-
     private PlayerInput playerInput;
-    public Equip equip;
-
-    //public Event mainWeapon_01;
-    //public Action mainWeapon_02;
-    //public Action subWeapon;
-    //public Action grenade;
-    // public Action ect;
+    Equip equip;
+    public Equip Equip => equip;
+    [Tooltip("ÏÉùÏÑ±Ìï† ÏïÑÏù¥ÌÖú ÌîÑÎ¶¨Ìé© Î∂ÄÎ™® Ïò§Î∏åÏ†ùÌä∏")]
+    public GameObject itemParent;
 
     public delegate void OnQuickSlot();
 
@@ -67,56 +21,76 @@ public class QuickSlot : MonoBehaviour
     public event OnQuickSlot grenade;
     public event OnQuickSlot ect;
 
-    private void Start()
+    public Action<ItemData> onMainWeapon01Change;
+    public Action<ItemData> onMainWeapon02Change;
+    public Action<ItemData> onSubWeaponChange;
+    public Action<ItemData> onGranadeChange;
+    public Action<ItemData> onETCChange;
+
+    private void Awake()
     {
-        equip = FindObjectOfType<Equip>();
+        equip = GetComponent<Equip>();
     }
 
     private void OnEnable()
     {
         mainWeapon_01 += MainWeapon_01;
+        mainWeapon_02 += MainWeapon_02;
+        subWeapon += SubWeapon;
+        grenade += Grenade;
+        ect += EctCompare;
     }
 
     public void MainWeapon_01()
     {
-        equip.slots[0].ItemData.itemPrefab.GetComponent<WeaponBase>().Use();
+        if (equip.slots[0] != null)
+        {
+            equip.slots[0].ItemData.itemPrefab.GetComponent<WeaponBase>().Use();
+            onMainWeapon01Change?.Invoke(equip.slots[0].ItemData);
+        }
     }
 
     public void MainWeapon_02()
     {
-        equip.slots[1].ItemData.itemPrefab.GetComponent<WeaponBase>().Use();
+        if (equip.slots[1] != null)
+        {
+            equip.slots[1].ItemData.itemPrefab.GetComponent<WeaponBase>().Use();
+            onMainWeapon02Change?.Invoke(equip.slots[1].ItemData);
+        }
     }
 
     public void SubWeapon()
     {
-        equip.slots[3].ItemData.itemPrefab.GetComponent<WeaponBase>().Use();
+        if (equip.slots[3] != null)
+        {
+            equip.slots[3].ItemData.itemPrefab.GetComponent<WeaponBase>().Use();
+            onSubWeaponChange?.Invoke(equip.slots[3].ItemData);
+        }
     }
 
     public void Grenade()
     {
-        equip.slots[0].ItemData.itemPrefab.GetComponent<GrenadeBase>().Use();
+        if (equip.slots[5] != null)
+        {
+            equip.slots[5].ItemData.itemPrefab.GetComponent<GrenadeBase>().Use();
+            onGranadeChange?.Invoke(equip.slots[5].ItemData);
+        }
     }
 
-    public void EctCompare ()
+    public void EctCompare()
     {
-        var ectComponents = equip.slots[7].ItemData.itemPrefab.GetComponents<Component>();
-        DoorKey door = new DoorKey();
-        TrapBase trap = new TrapBase();
-
-        foreach (var component in ectComponents)
+        if (equip.slots[7] != null)
         {
-            if (component.GetType() == door.GetType())
+            if (equip.slots[7].ItemData.itemType == ItemType.Key)
             {
                 equip.slots[7].ItemData.itemPrefab.GetComponent<DoorKey>().Use();
-
-                break;
             }
-            else if (component.GetType() == trap.GetType())
+            else if (equip.slots[7].ItemData.itemType == ItemType.Trap)
             {
                 equip.slots[7].ItemData.itemPrefab.GetComponent<TrapBase>().Use();
 
-                break;
             }
+            onETCChange?.Invoke(equip.slots[7].ItemData);
         }
     }
 }

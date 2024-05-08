@@ -3,66 +3,76 @@ using UnityEngine.InputSystem;
 
 public class CamRotate : MonoBehaviour
 {
-    public float mouseSensitivity = 5f; // ¸¶¿ì½º °¨µµ
-    public Transform playerBody; // ÇÃ·¹ÀÌ¾î ¸öÃ¼ÀÇ Transform ÄÄÆ÷³ÍÆ®
-    public LayerMask interactableLayerMask; // »óÈ£ÀÛ¿ë °¡´ÉÇÑ ·¹ÀÌ¾î ¸¶½ºÅ©
+    public float mouseSensitivity = 5f; // ë§ˆìš°ìŠ¤ ê°ë„
+    public Transform playerBody; // í”Œë ˆì´ì–´ ëª¸ì²´ì˜ Transform ì»´í¬ë„ŒíŠ¸
+    public LayerMask interactableLayerMask; // ìƒí˜¸ì‘ìš© ê°€ëŠ¥í•œ ë ˆì´ì–´ ë§ˆìŠ¤í¬
 
-    private Vector2 lookInput; // ¸¶¿ì½º ÀÔ·Â °ªÀ» ÀúÀåÇÒ º¯¼ö
-    private float xRotation = 0f; // Ä«¸Ş¶óÀÇ »óÇÏ È¸ÀüÀ» Á¦¾îÇÒ º¯¼ö
+    private Vector2 lookInput; // ë§ˆìš°ìŠ¤ ì…ë ¥ ê°’ì„ ì €ì¥í•  ë³€ìˆ˜
+    private float xRotation = 0f; // ì¹´ë©”ë¼ì˜ ìƒí•˜ íšŒì „ì„ ì œì–´í•  ë³€ìˆ˜
 
-    private InputAction lookAction; // ¸¶¿ì½º·Î º¸´Â ¹æÇâÀ» º¯°æÇÏ´Â ¾×¼Ç
-    private InputAction interactAction; // »óÈ£ÀÛ¿ë ¾×¼Ç
-    private PlayerMove inputActions; // »ç¿ëÀÚ ÀÔ·ÂÀ» Ã³¸®ÇÏ´Â ½ºÅ©¸³Æ®
+    private InputAction lookAction; // ë§ˆìš°ìŠ¤ë¡œ ë³´ëŠ” ë°©í–¥ì„ ë³€ê²½í•˜ëŠ” ì•¡ì…˜
+    private InputAction interactAction; // ìƒí˜¸ì‘ìš© ì•¡ì…˜
+    private PlayerMove inputActions; // ì‚¬ìš©ì ì…ë ¥ì„ ì²˜ë¦¬í•˜ëŠ” ìŠ¤í¬ë¦½íŠ¸
 
     private void Awake()
     {
-        inputActions = new PlayerMove(); // ÀÔ·Â ¾×¼Ç ÃÊ±âÈ­
+        inputActions = new PlayerMove(); // ì…ë ¥ ì•¡ì…˜ ì´ˆê¸°í™”
         lookAction = inputActions.Player.Look;
         interactAction = inputActions.Player.InteractAction;
-
-        lookAction.Enable();
-        interactAction.Enable(); // ¾×¼Ç È°¼ºÈ­
     }
 
     private void OnEnable()
     {
+        lookAction.Enable();
+        interactAction.Enable();
         lookAction.performed += OnLook;
-        interactAction.performed += OnInteract; // ÀÌº¥Æ® ¸®½º³Ê µî·Ï
+        interactAction.performed += OnInteract;
     }
 
     private void OnDisable()
     {
         lookAction.performed -= OnLook;
-        interactAction.performed -= OnInteract; // ÀÌº¥Æ® ¸®½º³Ê ÇØÁ¦
-
+        interactAction.performed -= OnInteract;
         lookAction.Disable();
-        interactAction.Disable(); // ¾×¼Ç ºñÈ°¼ºÈ­
+        interactAction.Disable();
     }
+
+
+    private const float InteractDistance = 3f; // ìƒí˜¸ì‘ìš© ìµœëŒ€ ê±°ë¦¬
 
     private void OnInteract(InputAction.CallbackContext context)
     {
-        Ray ray = new Ray(transform.position, transform.forward); // ÇöÀç À§Ä¡¿¡¼­ ¾ÕÀ¸·ÎÀÇ ·¹ÀÌ
+        Ray ray = new Ray(transform.position, transform.forward);
         RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, interactableLayerMask))
+        if (Physics.Raycast(ray, out hit, InteractDistance, interactableLayerMask))
         {
-            // »óÈ£ÀÛ¿ë °¡´ÉÇÑ ¿ÀºêÁ§Æ®¿Í Ãæµ¹ÇßÀ» ¶§ÀÇ ·ÎÁ÷
-            Debug.Log("Interacted with " + hit.collider.name); // ·Î±×·Î »óÈ£ÀÛ¿ë Ç¥½Ã
-            hit.collider.SendMessage("Interact", SendMessageOptions.DontRequireReceiver); // Interact ¸Ş¼­µå È£Ãâ
+            Debug.Log("Interacted with " + hit.collider.name);
+            if (hit.collider.CompareTag("Door"))
+            {
+                hit.collider.transform.parent.SendMessage("Interect", SendMessageOptions.DontRequireReceiver);
+            }
+            else
+            {
+                hit.collider.SendMessage("Interaction", SendMessageOptions.DontRequireReceiver);
+            }
         }
     }
 
+
+
+
     private void OnLook(InputAction.CallbackContext context)
     {
-        lookInput = context.ReadValue<Vector2>(); // ¸¶¿ì½º ÀÔ·Â°ª ÀĞ±â
+        lookInput = context.ReadValue<Vector2>(); // ë§ˆìš°ìŠ¤ ì…ë ¥ê°’ ì½ê¸°
 
         float mouseX = lookInput.x * mouseSensitivity * Time.deltaTime;
         float mouseY = lookInput.y * mouseSensitivity * Time.deltaTime;
 
         xRotation -= mouseY;
-        xRotation = Mathf.Clamp(xRotation, -90f, 90f); // »óÇÏ È¸Àü Á¦ÇÑ
+        xRotation = Mathf.Clamp(xRotation, -90f, 90f); // ìƒí•˜ íšŒì „ ì œí•œ
 
-        transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f); // Ä«¸Ş¶ó »óÇÏ È¸Àü Àû¿ë
-        playerBody.Rotate(Vector3.up * mouseX); // ÇÃ·¹ÀÌ¾î ¸öÃ¼ ÁÂ¿ì È¸Àü Àû¿ë
+        transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f); // ì¹´ë©”ë¼ ìƒí•˜ íšŒì „ ì ìš©
+        playerBody.Rotate(Vector3.up * mouseX); // í”Œë ˆì´ì–´ ëª¸ì²´ ì¢Œìš° íšŒì „ ì ìš©
     }
 }

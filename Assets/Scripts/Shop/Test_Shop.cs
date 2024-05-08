@@ -20,7 +20,7 @@ public class Test_Shop : MonoBehaviour
 
     void InitializeShopInventory()
     {
-        shopInventory = gameObject.AddComponent<ShopInventory>();
+        shopInventory = null;
         shopInventory.AddItem(ItemCode.Pistol);
         shopInventory.AddItem(ItemCode.Rifle);
         shopInventory.AddItem(ItemCode.Shotgun);

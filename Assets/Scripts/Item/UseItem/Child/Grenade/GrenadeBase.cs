@@ -8,6 +8,8 @@ public class GrenadeBase : ItemBase
     public float NoiseRange = 5.0f;
     public GameObject expoltionEffect;
 
+    protected bool isActive = false;
+
     Rigidbody rb;
 
     protected virtual void Awake()
@@ -17,7 +19,10 @@ public class GrenadeBase : ItemBase
 
     protected virtual void OnCollisionEnter(Collision collision)
     {
-        Explode();
+        if (isActive)
+        {
+            Explode();
+        }
     }
 
     protected virtual void Explode()
@@ -32,6 +37,7 @@ public class GrenadeBase : ItemBase
         Transform cam = player.transform.GetChild(0);
 
         transform.position = playerfire.firePosition.transform.position;
+        isActive = true;
         rb.AddForce(cam.forward * playerfire.throwPower, ForceMode.Impulse);
     }
 }

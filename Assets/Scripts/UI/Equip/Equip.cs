@@ -5,47 +5,8 @@ using System.Net.NetworkInformation;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
-//public class Equip : Inventory
 public class Equip : MonoBehaviour
 {
-    //[SerializeField] public Slot[] slots;
-    //private QuickSlotUI quickSlotUI;
-
-    //private void Awake()
-    //{
-    //    slots = GetComponentsInChildren<Slot>();
-    //    quickSlotUI = FindObjectOfType<QuickSlotUI>(true);
-    //}
-
-    ///// <summary>
-    ///// ½½·Ô¿¡ ¾ÆÀÌÅÛ Á¤º¸ Ãß°¡.
-    ///// </summary>
-    ///// <param name="item"></param>
-    ///// <param name="index"></param>
-    //public void AddItemToSlot(ItemData item, uint index)
-    //{
-    //    if (slots[index].IsEmpty)
-    //    {
-    //        slots[index].AddItem(item);
-    //        quickSlotUI.QuickSlotImageChange(index);
-    //    }
-    //}
-
-    ///// <summary>
-    ///// ½½·Ô¿¡ ÀÌ¹Ì ¾ÆÀÌÅÛÀÌ Á¸ÀçÇÒ °æ¿ì ±× ¾ÆÀÌÅÛ°ú ÀåÂø ¾ÆÀÌÅÛ º¯°æ.
-    ///// </summary>
-    ///// <param name="from"></param>
-    ///// <param name="to"></param>
-    //public void SwitchItemToSlot(Slot from, Slot to)
-    //{
-    //    if (!from.IsEmpty && to.IsEmpty)
-    //    {
-    //        ItemData temp = from.itemData;
-    //        from.RemoveItem();
-    //        to.EquipItem(temp);
-    //    }
-    //}
-
     private const int Default_Inventory_Size = 8;
     public EquipSlot[] slots;
     public EquipSlot this[uint index] => slots[index];
@@ -54,25 +15,18 @@ public class Equip : MonoBehaviour
     private DragSlot dragSlot;
     private uint dragSlotIndex = 999999999;
     public DragSlot DragSlot => dragSlot;
-    ItemDataManager itemDataManager;
+    private ItemDataManager itemDataManager;
     public Player Owner => owner;
     private Equip_UI equipUI;
-    // private SlotType slotsType;
 
-    //public Equip(Player owner, uint size = Default_Inventory_Size)
-    //    : base (owner, size)
-    //{
-
-    //}
-
-    public Equip(Player owner, GameObject slotsParent, uint size = Default_Inventory_Size)
+    public Equip(Player owner, uint size = Default_Inventory_Size)
     {
         slots = new EquipSlot[size];
 
         for (uint i = 0; i < slots.Length; i++)
         {
             slots[i] = new EquipSlot(i);
-            slots[i].slotType = slotsParent.GetComponentsInChildren<EquipSlot_UI>()[i].slotType;
+            //slots[i].slotType = slotsParent.GetComponentsInChildren<EquipSlot_UI>()[i].slotType;  // awake í•¨ìˆ˜ë¡œ ë”°ë¡œ ì°¾ê¸°
         }
 
         dragSlot = new DragSlot(dragSlotIndex);
@@ -83,17 +37,19 @@ public class Equip : MonoBehaviour
 
     private void Awake()
     {
-        //slots[0].AssignSlotItem(equipUI.data01);
-        //MoveItem(slots[1], slots[0]);
-        //slots[0].AssignSlotItem(equipUI.data02);
-        //slots[0].AssignSlotItem(equipUI.data03);
+        GameObject equipUIObject = equipUI.gameObject.GetComponent<GameObject>();
+
+        for (uint i = 0; i < slots.Length; i++)
+        {
+            slots[i].slotType = equipUIObject.transform.GetChild(0).GetComponentsInChildren<EquipSlot_UI>()[i].slotType;  // awake í•¨ìˆ˜ë¡œ ë”°ë¡œ ì°¾ê¸°
+        }
     }
 
     /// <summary>
-    /// Á¤ºñÃ¢¿¡ Æ¯Á¤ ¾ÆÀÌÅÛÀ» ÀåÂøÇÏ´Â ÇÔ¼ö.
+    /// ì •ë¹„ì°½ì— íŠ¹ì • ì•„ì´í…œì„ ì¥ì°©í•˜ëŠ” í•¨ìˆ˜.
     /// </summary>
-    /// <param name="code">ÀåÂø ÇÒ ¾ÆÀÌÅÛ ÄÚµå</param>
-    /// <returns>¼º°øÇÏ¸é true ¸®ÅÏ ½ÇÆĞÇÏ¸é false ¸®ÅÏ</returns>
+    /// <param name="code">ì¥ì°© í•  ì•„ì´í…œ ì½”ë“œ</param>
+    /// <returns>ì„±ê³µí•˜ë©´ true ë¦¬í„´ ì‹¤íŒ¨í•˜ë©´ false ë¦¬í„´</returns>
     public bool AddItem(ItemCode code)
     {
         for (int i = 0; i < SlotCount; i++)
@@ -108,11 +64,11 @@ public class Equip : MonoBehaviour
     }
 
     /// <summary>
-    /// Æ¯Á¤ Á¤ºñÃ¢ ½½·Ô¿¡ Æ¯Á¤ ¾ÆÀÌÅÛÀ» 1°³ ÀåÂøÇÏ´Â ÇÔ¼ö
+    /// íŠ¹ì • ì •ë¹„ì°½ ìŠ¬ë¡¯ì— íŠ¹ì • ì•„ì´í…œì„ 1ê°œ ì¥ì°©í•˜ëŠ” í•¨ìˆ˜
     /// </summary>
-    /// <param name="code">ÀåÂø ÇÒ ¾ÆÀÌÅÛÀÇ ÄÚµå</param>
-    /// <param name="slotIndex">¾ÆÀÌÅÛÀ» ÀåÂø ÇÒ ½½·ÔÀÇ ÀÎµ¦½º</param>
-    /// <returns>¼º°øÇÏ¸é true ¸®ÅÏ ½ÇÆĞÇÏ¸é false ¸®ÅÏ</returns>
+    /// <param name="code">ì¥ì°© í•  ì•„ì´í…œì˜ ì½”ë“œ</param>
+    /// <param name="slotIndex">ì•„ì´í…œì„ ì¥ì°© í•  ìŠ¬ë¡¯ì˜ ì¸ë±ìŠ¤</param>
+    /// <returns>ì„±ê³µí•˜ë©´ true ë¦¬í„´ ì‹¤íŒ¨í•˜ë©´ false ë¦¬í„´</returns>
     public bool AddItem(ItemCode code, uint slotIndex)
     {
         bool result = false;
@@ -124,59 +80,8 @@ public class Equip : MonoBehaviour
 
             if (slot.slotType.Contains(data.itemType))
             {
-                if (slot.slotType.Contains(ItemType.Gun))
-                {
-                    Pistol pistol = gameObject.AddComponent<Pistol>();
-                    //Rifle rifle = gameObject.AddComponent<Rifle>();
-                    //Shotgun shotgun = gameObject.AddComponent<Shotgun>();
-                    //Sniper sniper = gameObject.AddComponent<Sniper>();
-                    var slotItemComponents = slot.ItemData.itemPrefab.GetComponents<Component>();
-
-                    foreach (var gunCom in slotItemComponents)
-                    {
-                        if (gunCom.GetType() == pistol.GetType())
-                        {
-                            //slotIndex = 2;
-                            //slot = slots[slotIndex];
-                            if (slotIndex != 2)
-                            {
-                                result = false;
-
-                                return result;
-                            }
-                        }
-                        else
-                        {
-
-                        }
-                    }
-                }
-
-                //if (slot.slotType.Contains(data.itemType) && slot.IsEmpty)
                 if (slot.IsEmpty)
                 {
-                    //if (slot.slotType.Contains(ItemType.Gun))
-                    //{
-                    //    Pistol pistol = gameObject.AddComponent<Pistol>();
-                    //    //Rifle rifle = gameObject.AddComponent<Rifle>();
-                    //    //Shotgun shotgun = gameObject.AddComponent<Shotgun>();
-                    //    //Sniper sniper = gameObject.AddComponent<Sniper>();
-                    //    var slotItemComponents = slot.ItemData.itemPrefab.GetComponents<Component>();
-
-                    //    foreach (var gunCom in slotItemComponents)
-                    //    {
-                    //        if (gunCom.GetType() == pistol.GetType())
-                    //        {
-                    //            slotIndex = 2;
-                    //            slot = slots[slotIndex];
-                    //        }
-                    //        else
-                    //        {
-
-                    //        }
-                    //    }
-                    //}
-
                     slot.AssignSlotItem(data);
                     result = true;
                 }   
@@ -185,17 +90,17 @@ public class Equip : MonoBehaviour
         {
             if (slot.ItemData == data)
             {
-                // result = slot.SetSlotCount(out _);  ¾ÆÀÌÅÛ Áõ°¡ ÇÊ¿ä ¾øÀ½.
+                // result = slot.SetSlotCount(out _);  ì•„ì´í…œ ì¦ê°€ í•„ìš” ì—†ìŒ.
             }
             else
             {
-                // ´Ù¸¥ Á¾·ùÀÇ ¾ÆÀÌÅÛ
+                // ë‹¤ë¥¸ ì¢…ë¥˜ì˜ ì•„ì´í…œ
             }
         }
         }
         else
         {
-            // Àß¸øµÈ ½½·Ô
+            // ì˜ëª»ëœ ìŠ¬ë¡¯
         }
 
         return result;
@@ -203,35 +108,35 @@ public class Equip : MonoBehaviour
 
     public void MoveItem(ItemSlot from, ItemSlot to)
     {
-        // from ÁöÁ¡°ú toÁöÁ¡Àº ¼­·Î ´Ù¸¥ À§Ä¡ÀÌ°í ¸ğµÎ validÇÑ ½½·ÔÀÌ¾î¾ß ÇÑ´Ù.
+        // from ì§€ì ê³¼ toì§€ì ì€ ì„œë¡œ ë‹¤ë¥¸ ìœ„ì¹˜ì´ê³  ëª¨ë‘ validí•œ ìŠ¬ë¡¯ì´ì–´ì•¼ í•œë‹¤.
         if ((from != to) && IsValidIndex(from) && IsValidIndex(to))
         {
             bool fromIsTemp = (from == dragSlot);
-            ItemSlot fromSlot = fromIsTemp ? DragSlot : from;   // from½½·Ô °¡Á®¿À±â
+            ItemSlot fromSlot = fromIsTemp ? DragSlot : from;   // fromìŠ¬ë¡¯ ê°€ì ¸ì˜¤ê¸°
 
             if (!fromSlot.IsEmpty)
             {
-                // from¿¡ ¾ÆÀÌÅÛÀÌ ÀÖ´Ù.
+                // fromì— ì•„ì´í…œì´ ìˆë‹¤.
                 ItemSlot toSlot = null;
 
                 if (to == dragSlot)
                 {
-                    // to°¡ drag½½·ÔÀÌ¸é
-                    toSlot = DragSlot;      // ½½·Ô ÀúÀåÇÏ°í
-                    DragSlot.SetFromIndex(fromSlot.Index);  // µå·¡°í ½ÃÀÛ ½½·Ô ÀúÀå(fromIndex)
+                    // toê°€ dragìŠ¬ë¡¯ì´ë©´
+                    toSlot = DragSlot;      // ìŠ¬ë¡¯ ì €ì¥í•˜ê³ 
+                    DragSlot.SetFromIndex(fromSlot.Index);  // ë“œë˜ê³  ì‹œì‘ ìŠ¬ë¡¯ ì €ì¥(fromIndex)
                 }
                 else
                 {
-                    toSlot = to;        // drag½½·ÔÀÌ ¾Æ´Ï¸é ½½·Ô¸¸ ÀúÀå
+                    toSlot = to;        // dragìŠ¬ë¡¯ì´ ì•„ë‹ˆë©´ ìŠ¬ë¡¯ë§Œ ì €ì¥
                 }
 
                 if (fromSlot.ItemData == toSlot.ItemData)
                 {
-                    //// °°Àº Á¾·ùÀÇ ¾ÆÀÌÅÛ => to¿¡ Ã¤¿ï ¼ö ÀÖ´Âµ¥±îÁö Ã¤¿î´Ù. to¿¡ ³Ñ¾î°£ ¸¸Å­ fromÀ» °¨¼Ò½ÃÅ²´Ù.
-                    //toSlot.SetSlotCount(out uint overCount, fromSlot.ItemCount);    // fromÀÌ °¡Áø °³¼ö¸¸Å­ to Ãß°¡
-                    //fromSlot.DecreaseSlotItem(fromSlot.ItemCount - overCount);      // from¿¡¼­ to·Î ³Ñ¾î°£ °³¼ö¸¸Å­¸¸ °¨¼Ò
+                    //// ê°™ì€ ì¢…ë¥˜ì˜ ì•„ì´í…œ => toì— ì±„ìš¸ ìˆ˜ ìˆëŠ”ë°ê¹Œì§€ ì±„ìš´ë‹¤. toì— ë„˜ì–´ê°„ ë§Œí¼ fromì„ ê°ì†Œì‹œí‚¨ë‹¤.
+                    //toSlot.SetSlotCount(out uint overCount, fromSlot.ItemCount);    // fromì´ ê°€ì§„ ê°œìˆ˜ë§Œí¼ to ì¶”ê°€
+                    //fromSlot.DecreaseSlotItem(fromSlot.ItemCount - overCount);      // fromì—ì„œ toë¡œ ë„˜ì–´ê°„ ê°œìˆ˜ë§Œí¼ë§Œ ê°ì†Œ
 
-                    // °°Àº ¾ÆÀÌÅÛÀº Ãß°¡ ¾ÈÇÑ´Ù.
+                    // ê°™ì€ ì•„ì´í…œì€ ì¶”ê°€ ì•ˆí•œë‹¤.
                 }
                 else
                 {
@@ -316,10 +221,25 @@ public class Equip : MonoBehaviour
     }
 
     /// <summary>
-    /// ÇÃ·¹ÀÌ¾î°¡ »ç¸ÁÇÏ°Å³ª Áß°£¿¡ ³ª°¬À» ¶§ ÀÎº¥Åä¸®¸¦ ºñ¿ì´Â ÇÔ¼ö
+    /// í”Œë ˆì´ì–´ê°€ ì‚¬ë§í•˜ê±°ë‚˜ ì¤‘ê°„ì— ë‚˜ê°”ì„ ë•Œ ì¸ë²¤í† ë¦¬ë¥¼ ë¹„ìš°ëŠ” í•¨ìˆ˜
     /// </summary>
     public void GameOver()
     {
         ClearEquip();
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public void EquipEfectApply()
+    {
+        if (slots[3] != null || slots[4] != null)
+        {
+            ArmorBase armoHelmet = slots[3].ItemData.itemPrefab.GetComponent<ArmorBase>();
+            ArmorBase armoVest = slots[4].ItemData.itemPrefab.GetComponent<ArmorBase>();
+
+            owner.Hp += armoHelmet.amountDefense;
+            owner.Hp += armoVest.amountDefense;
+        }
     }
 }
