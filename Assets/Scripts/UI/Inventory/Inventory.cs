@@ -1,9 +1,13 @@
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Xml;
 using Unity.VisualScripting;
 using UnityEngine;
 using static BulletBase;
+
 
 // 아이템 획득 시 인벤토리에 넣어주는 클래스
 public class Inventory
@@ -31,9 +35,7 @@ public class Inventory
     public Action<int> onReload;
 
 
-
-
-    public Inventory(Player owner, uint size = Default_Inventory_Size)
+    public Inventory(GameManager owner, uint size = Default_Inventory_Size)
     {
         slots = new ItemSlot[size];
         for(uint i = 0; i < slots.Length; i++)
@@ -43,7 +45,7 @@ public class Inventory
         dragSlot = new DragSlot(dragSlotIndex);
         itemDataManager = GameManager.Instance.ItemData;
         invenUI = GameManager.Instance.InventoryUI;
-        this.owner = owner;
+        this.owner = owner.Player;
     }
 
     /// <summary>
@@ -57,8 +59,15 @@ public class Inventory
         {
             if (AddItem(code, (uint)i))
             {
-                invenUI.Money += (int)slots[i].ItemData.Price;
-                Owner.Weight += slots[i].ItemData.weight;
+                if(owner != null)
+                {
+                    if (slots[i].ItemData != null)
+                    {
+                        invenUI.Money += (int)slots[i].ItemData.Price;
+                        Owner.Weight += slots[i].ItemData.weight;
+                    }
+                }
+
                 return true;
             }
         }
@@ -402,6 +411,64 @@ public class Inventory
         ClearInventory();
     }
 
+    public void SaveInventoryToJson()
+    {
+        List<ItemSlotData> slotDataList = new List<ItemSlotData>();
+        foreach (var slot in slots)
+        {
+            if (!slot.IsEmpty)
+            {
+                slotDataList.Add(new ItemSlotData()
+                {
+                    ItemCode = slot.ItemData.itemId,
+                    ItemCount = slot.ItemCount,
+                    IsEquipped = slot.IsEquiped  // IsEquipped 프로퍼티가 ItemSlot에 존재해야 합니다
+                });
+            }
+        }
+
+        string json = JsonConvert.SerializeObject(slotDataList, Newtonsoft.Json.Formatting.Indented);
+        File.WriteAllText(Path.Combine(Application.persistentDataPath, "inventory.json"), json);
+        Debug.Log("유저 인벤토리를 저장했습니다.");
+    }
+
+    public void LoadInventoryFromJson()
+    {
+        string path = Path.Combine(Application.persistentDataPath, "inventory.json");
+        if (File.Exists(path))
+        {
+            string json = File.ReadAllText(path);
+            List<ItemSlotData> slotDataList = JsonConvert.DeserializeObject<List<ItemSlotData>>(json);
+            ClearInventory();  // 기존 인벤토리 클리어
+
+            foreach (var slotData in slotDataList)
+            {
+                ItemData itemData = itemDataManager.GetItemDataByCode(slotData.ItemCode);
+                ItemSlot slot = GetEmptySlot();  // 빈 슬롯 찾기 메서드 구현 필요
+                if (slot != null)
+                {
+                    slot.AssignSlotItem(itemData, slotData.ItemCount, slotData.IsEquipped);
+                }
+            }
+            Debug.Log("유저 인벤토리의 저장 데이터를 불러옵니다.");
+        }
+        else
+        {
+            Debug.LogWarning("저장된 유저 인벤토리 데이터가 없습니다.");
+        }
+    }
+    public ItemSlot GetEmptySlot()
+    {
+        // 모든 슬롯을 순회하며 비어 있는 슬롯을 찾음
+        foreach (var slot in slots)
+        {
+            if (slot.IsEmpty)
+            {
+                return slot;
+            }
+        }
+        return null; // 비어 있는 슬롯이 없으면 null 반환
+    }
 
 #if UNITY_EDITOR
     public void Test_InventoryPrint()

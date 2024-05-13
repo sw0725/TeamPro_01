@@ -15,7 +15,7 @@ public class Test_Shop : MonoBehaviour
     void Start()
     {
         InitializeShopInventory();
-        worldInventory = new WorldInventory(player);
+        worldInventory = new WorldInventory(GameManager.Instance);
     }
 
     void InitializeShopInventory()
