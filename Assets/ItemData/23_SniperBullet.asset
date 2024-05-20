@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: 23_SniperBullet
   m_EditorClassIdentifier: 
   itemId: 23
-  itemType: 3
+  itemType: 4
   itemName: 300m
   itemImage: {fileID: 21300000, guid: 9c3402b1c92cec54797c1e7151ee58ad, type: 3}
   weight: 8

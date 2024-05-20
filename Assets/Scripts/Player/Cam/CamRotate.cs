@@ -37,7 +37,6 @@ public class CamRotate : MonoBehaviour
         interactAction.Disable();
     }
 
-
     private const float InteractDistance = 3f; // 상호작용 최대 거리
 
     private void OnInteract(InputAction.CallbackContext context)
@@ -47,20 +46,34 @@ public class CamRotate : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit, InteractDistance, interactableLayerMask))
         {
+            // 부모가 플레이어인지 확인
+            if (hit.collider.transform.IsChildOf(playerBody))
+            {
+                Debug.Log("플레이어의 자식 오브젝트는 상호작용하지 않습니다.");
+                return;
+            }
+
             Debug.Log("Interacted with " + hit.collider.name);
+
             if (hit.collider.CompareTag("Door"))
             {
                 hit.collider.transform.parent.SendMessage("Interect", SendMessageOptions.DontRequireReceiver);
             }
-            else
+            else if (hit.collider.CompareTag("Item"))
             {
-                hit.collider.SendMessage("Interaction", SendMessageOptions.DontRequireReceiver);
+                // 상속받은 스크립트에서 Interact 메서드를 호출
+                var itemBase = hit.collider.GetComponent<ItemBase>();
+                if (itemBase != null)
+                {
+                    itemBase.Interact();
+                }
+                else
+                {
+                    Debug.LogWarning("아이템베이스에서 해당 개체를 찾을 수 없습니다.");
+                }
             }
         }
     }
-
-
-
 
     private void OnLook(InputAction.CallbackContext context)
     {

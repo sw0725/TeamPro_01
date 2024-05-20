@@ -64,19 +64,27 @@ public class WeaponBase : ItemBase
 
     private void OnEnable()
     {
-        PlayerUI playerUI = GameManager.Instance.PlayerUI;
-        onAmmoChange += playerUI.Remain.Refresh;
+        Player player = GetComponentInParent<Player>();
+        if (player != null) 
+        {
+            PlayerUI playerUI = GameManager.Instance.PlayerUI;
+            onAmmoChange += playerUI.Remain.Refresh;
 
-        playerUI.Remain.Refresh(currentAmmo, maxAmmo);
+            playerUI.Remain.Refresh(currentAmmo, maxAmmo);
+        }
     }
 
     private void OnDisable()
     {
-        PlayerUI playerUI = GameManager.Instance.PlayerUI;
+        Player player = GetComponentInParent<Player>();
+        if (player != null)
+        {
+            PlayerUI playerUI = GameManager.Instance.PlayerUI;
 
-        playerUI.Remain.Refresh(0, 0);
+            playerUI.Remain.Refresh(0, 0);
 
-        onAmmoChange = null;
+            onAmmoChange = null;
+        }
     }
 
     // ------------------------------------------------------------------------

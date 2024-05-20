@@ -6,13 +6,9 @@ public class MoneyBase : ItemBase
 {
     public int amount = 1;
 
-    public override void Interact(ItemCode itemCode)
+    public override void Interact()
     {
         GameManager.Instance.InventoryUI.Inventory.AddItem(ItemCode.OneHundreadDol, amount);
-        //GameManager.Instance.InventoryUI.Inventory.AddItem(ItemCode.OneThousandDol, amount);
-        //GameManager.Instance.InventoryUI.Inventory.AddItem(ItemCode.TenThousandDol, amount);
-
-        GameObject obj = GameManager.Instance.ItemData[itemCode].itemPrefab;
-        Destroy(obj.gameObject);
+        Destroy(gameObject);
     }
 }

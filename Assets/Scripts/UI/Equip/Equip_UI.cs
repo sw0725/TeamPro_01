@@ -7,40 +7,33 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class Equip_UI : MonoBehaviour
-{//
+{
     Equip equip;
-
-    PlayerInput inputActions;
 
     public Equip Equip => equip;
 
-    DragSlotUI dragSlot;
 
     EquipSlot_UI[] equipSlot_UI;
 
-    [SerializeField] DropSlotUI dropSlot;
+    DropSlotUI dropSlot;
 
-    [SerializeField] InventoryManager invenManager;
+    InventoryManager invenManager;
 
-    [SerializeField] RectTransform invenTransform;
+    RectTransform invenTransform;
 
-    [SerializeField] CanvasGroup canvas;
+    CanvasGroup canvas;
 
-    QuickSlot quickSlot;
-
-    public QuickSlot QuickSlot => quickSlot;
-     
-    public ItemData data01;
-    public ItemData data02;
-    public ItemData data03;
-    public ItemData data04;
-    public ItemData data05;
+    Inventory_UI inven;
 
     Player Owner => equip.Owner;
 
+    Transform weaponTransform;
+
+    QuickSlot QuickSlot;
+
     private void Awake()
     {
-        inputActions = new PlayerInput();
+        
 
         Transform child = transform.GetChild(0);
         equipSlot_UI = child.GetComponentsInChildren<EquipSlot_UI>();
@@ -54,20 +47,9 @@ public class Equip_UI : MonoBehaviour
 
         canvas = GetComponent<CanvasGroup>();
 
-        dragSlot = GetComponentInChildren<DragSlotUI>();
-
-        quickSlot = GetComponent<QuickSlot>();
-    }//
-
-    private void OnEnable()
-    {
+        QuickSlot = GetComponent<QuickSlot>();
     }
 
-
-
-    void OnDisable()
-    {
-    }
 
     public void InitializeInventory(Equip playerEquip)
     {
@@ -76,59 +58,39 @@ public class Equip_UI : MonoBehaviour
         for (uint i = 0; i < equipSlot_UI.Length; i++)
         {
             equipSlot_UI[i].InitializeSlot(equip[i]);
-            equipSlot_UI[i].onDragBegin += OnItemMoveBegin;
-            equipSlot_UI[i].onDragEnd += OnItemMoveEnd;
-            equipSlot_UI[i].OnClick += OnClick;
+
+            QuickSlot.onWeaponChange = Equipment;
+            QuickSlot.onGranadeChange = Equipment;
+            QuickSlot.onETCChange = Equipment;
         }
         invenManager.DragSlot.InitializeSlot(equip.DragSlot);  // �ӽ� ���� �ʱ�ȭ
 
+        inven = GameManager.Instance.InventoryUI;
         dropSlot.Close();
 
         Close();
     }
 
-    private void OnItemMoveBegin(ItemSlot slot)
+    void Equipment(Equipment type)
     {
-        invenManager.DragSlot.InitializeSlot(equip.DragSlot);  // �ӽ� ���� �ʱ�ȭ
-        equip.MoveItem(slot, invenManager.DragSlot.ItemSlot);
-        invenManager.DragSlot.Open();
+        Owner.Equipped(type);  
     }
 
-
-
-    /// <summary>
-    /// ������ �巡�װ� ���̳��� ����Ǵ� �Լ�
-    /// </summary>
-    /// <param name="index">���� ������ index</param>
-    private void OnItemMoveEnd(ItemSlot slot, RectTransform rect)
+    public bool EquipItem(ItemSlot slot)
     {
-        equip.MoveItem(invenManager.DragSlot.ItemSlot, slot);
-
-        Inventory_UI inven;
-        inven = FindObjectOfType<Inventory_UI>();
-
-        if (inven != null)
-        {
-            //inven.MinusValue(slot, (int)slot.ItemCount);
-            //inven.PlusValue(slot);
-        }
-
-        if (invenManager.DragSlot.ItemSlot.IsEmpty)
-        {
-            invenManager.DragSlot.Close();
-        }
-
+        return equip.AddItem(slot.ItemData.itemId);
     }
 
-    /// <summary>
-    /// ������ Ŭ���ϸ� ����Ǵ� �Լ�
-    /// </summary>
-    /// <param name="index"></param>
-    private void OnClick(ItemSlot slot, RectTransform rect)
+    public void UnEquipItem(ItemSlot slot)
     {
-        if (!invenManager.DragSlot.ItemSlot.IsEmpty)
+        equip.RemoveItem(slot.ItemData.itemId);
+    }
+
+    public void UseItem(uint index)
+    {
+        if(inven.Inventory.RemoveItem(equipSlot_UI[index].ItemSlot.ItemData.itemId) < 1)
         {
-            OnItemMoveEnd(slot, rect);
+            equip.RemoveItem(equipSlot_UI[index].ItemSlot.ItemData.itemId);
         }
     }
 

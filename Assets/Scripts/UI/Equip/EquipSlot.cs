@@ -4,11 +4,30 @@ using UnityEngine;
 
 public class EquipSlot : ItemSlot
 {
-    [Tooltip("ÇØ´ç ½½·ÔÀÇ Å¸ÀÔ ÇÒ´ç")]
     public List<ItemType> slotType = new List<ItemType>();
+
+
 
     public EquipSlot(uint index) : base(index)
     {
 
     }
+
+    public override void ClearSlot()
+    {
+        base.ClearSlot();
+    }
+
+    /// <summary>
+    /// ì´ ìŠ¬ë¡¯ì— ìˆëŠ” ì•„ì´í…œì„ ì¥ë¹„í•˜ëŠ” í•¨ìˆ˜
+    /// </summary>
+    //public void Equip()
+    //{
+    //    Player player = GameManager.Instance.Player;
+
+    //    if (player != null)
+    //    {
+    //        player.Equipped(ItemData.itemPrefab);
+    //    }
+    //}
 }

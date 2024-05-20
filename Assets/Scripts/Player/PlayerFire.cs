@@ -13,8 +13,9 @@ public class PlayerFire : MonoBehaviour
 
     private PlayerMove InputActions;
 
-
     PlayerNoiseSystem noise;
+    private WeaponBase weapon; // WeaponBase 타입의 멤버 변수 추가
+    private QuickSlot quickSlot; // QuickSlot 클래스의 인스턴스 추가
 
     private void Awake()
     {
@@ -22,21 +23,21 @@ public class PlayerFire : MonoBehaviour
         ps = bulletEffect.GetComponent<ParticleSystem>();
         if (ps == null)
         {
-            Debug.LogError("BulletEffect does not contain a ParticleSystem component.");
+            Debug.LogError("BulletEffect에는 ParticleSystem 구성 요소가 포함되어 있지 않습니다.");
         }
 
         // 플레이어 노이즈 시스템 참조
         noise = transform.GetComponentInChildren<PlayerNoiseSystem>(true);
         if (noise == null)
         {
-            Debug.LogError("No PlayerNoiseSystem found on the player or its children.");
+            Debug.LogError("플레이어 또는 해당 자식에서 플레이어 노이즈 시스템을 찾을 수 없습니다.");
         }
 
         // 메인 카메라 캐싱
         mainCamera = Camera.main;
         if (mainCamera == null)
         {
-            Debug.LogError("Main camera not found. Make sure your camera is tagged as 'MainCamera'.");
+            Debug.LogError("메인 카메라를 찾을 수 없습니다. 카메라가 '메인 카메라'로 태그되어 있는지 확인하십시오.");
         }
 
         // 입력 시스템 설정
@@ -44,6 +45,20 @@ public class PlayerFire : MonoBehaviour
         InputActions.Player.LeftMouse.performed += OnLeftMouse;
         InputActions.Player.RightMouse.performed += OnRightMouse;
         InputActions.Enable();
+
+        // WeaponBase 인스턴스 초기화
+        weapon = GetComponent<WeaponBase>();
+        if (weapon == null)
+        {
+            Debug.LogError("WeaponBase 컴포넌트가 플레이어에 할당되지 않았습니다.");
+        }
+
+        // QuickSlot 인스턴스 초기화
+        quickSlot = GetComponent<QuickSlot>();
+        if (quickSlot == null)
+        {
+            Debug.LogError("QuickSlot 컴포넌트가 플레이어에 할당되지 않았습니다.");
+        }
     }
 
     private void OnEnable()
@@ -56,7 +71,6 @@ public class PlayerFire : MonoBehaviour
         InputActions.Disable();
     }
 
-
     private void OnLeftMouse(InputAction.CallbackContext context)
     {
         Fire();
@@ -64,32 +78,19 @@ public class PlayerFire : MonoBehaviour
 
     private void OnRightMouse(InputAction.CallbackContext context)
     {
-        // 여기서 액션을 보내면, 퀵슬롯에서 슬롯을 현재 장비하고 있는 아이템과 연결 해주는 것 
+        // QuickSlot을 통해 아이템 사용 신호 보내기
+        if (quickSlot != null)
+        {
+            //quickSlot.SubWeapon(); // 예시로 SubWeapon을 사용하도록 설정
+            Debug.Log("퀵슬롯에서 아이템을 사용했습니다.");
+        }
     }
 
     private void Fire()
     {
-        Ray ray = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
-        RaycastHit hitInfo;
-        float maxDistance = 100f;  // 예를 들어 최대 100미터
-        int layerMask = LayerMask.GetMask("Enemy");
-
-        //if (Physics.Raycast(ray, out hitInfo, maxDistance, layerMask))
-        //{
-        //    // 적중한 객체 처리
-        //    EnemyBase eFSM = hitInfo.transform.GetComponent<EnemyBase>();
-        //    if (eFSM != null)
-        //    {
-        //        eFSM.Damage(weaponPower);
-        //    }
-        //}
-        //else
-        //{
-        //    bulletEffect.transform.position = hitInfo.point;
-        //    ps.Play();
-        //}
+        if (weapon != null)
+        {
+            weapon.Fire(); // WeaponBase 클래스의 Fire 메서드 호출
+        }
     }
-
-
-
 }

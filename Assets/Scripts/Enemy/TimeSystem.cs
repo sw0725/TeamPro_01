@@ -44,7 +44,6 @@ public class TimeSystem : MonoBehaviour
         currentTime += Time.deltaTime;
 
         lightAngle.x = 90.0f + (currentTime * playTimeCal * 180.0f);
-        Debug.Log(currentTime * playTimeCal);
         dirLight.transform.rotation = Quaternion.Euler(lightAngle);
         if (isNight)
         {

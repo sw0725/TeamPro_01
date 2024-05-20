@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: 34_MiddleBackpack
   m_EditorClassIdentifier: 
   itemId: 34
-  itemType: 7
+  itemType: 9
   itemName: "2\uB808\uBCA8 \uAC00\uBC29"
   itemImage: {fileID: 21300000, guid: 3076a272cd5e06a448e29fee702bccd1, type: 3}
   weight: 0
