@@ -45,20 +45,6 @@ public class PlayerFire : MonoBehaviour
         InputActions.Player.LeftMouse.performed += OnLeftMouse;
         InputActions.Player.RightMouse.performed += OnRightMouse;
         InputActions.Enable();
-
-        // WeaponBase 인스턴스 초기화
-        weapon = GetComponent<WeaponBase>();
-        if (weapon == null)
-        {
-            Debug.LogError("WeaponBase 컴포넌트가 플레이어에 할당되지 않았습니다.");
-        }
-
-        // QuickSlot 인스턴스 초기화
-        quickSlot = GetComponent<QuickSlot>();
-        if (quickSlot == null)
-        {
-            Debug.LogError("QuickSlot 컴포넌트가 플레이어에 할당되지 않았습니다.");
-        }
     }
 
     private void OnEnable()

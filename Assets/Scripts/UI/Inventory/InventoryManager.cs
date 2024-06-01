@@ -35,7 +35,7 @@ public class InventoryManager : MonoBehaviour
         worldInven = GetComponentInChildren<WorldInventory_UI>();
         equip = GetComponentInChildren<Equip_UI>();
 
-        Transform child = transform.GetChild(3);
+        Transform child = transform.GetChild(4);
         resultButton = child.GetComponent<Button>();
 
     }
@@ -61,8 +61,8 @@ public class InventoryManager : MonoBehaviour
             resultButton.gameObject.SetActive(true);
         };
 
-        //resultButton.onClick.AddListener(OnClick);
-        //resultButton.gameObject.SetActive(false);
+        resultButton.onClick.AddListener(OnClick);
+        resultButton.gameObject.SetActive(false);
     }
 
     private void OnClick()

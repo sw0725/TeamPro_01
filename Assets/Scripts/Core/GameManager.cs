@@ -69,7 +69,7 @@ public class GameManager : Singleton<GameManager>
 
         // ShopInventory 초기화
         shopInventory = new ShopInventory();
-        shopInventoryUI.AddBasicItem();
+        //shopInventoryUI.AddBasicItem();
     }
 
     // 초기화 이전에 필요한 컴포넌트를 미리 설정

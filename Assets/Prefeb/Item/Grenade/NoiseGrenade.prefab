@@ -48,10 +48,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemCode: 11
-  Price: 200
-  Weight: 3
+  Price: 10
+  Weight: 0
   NoiseRange: 5
   expoltionEffect: {fileID: 0}
+  isActive: 0
   noiseVolume: 10
 --- !u!54 &6728267175054695613
 Rigidbody:
@@ -95,7 +96,7 @@ SphereCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3

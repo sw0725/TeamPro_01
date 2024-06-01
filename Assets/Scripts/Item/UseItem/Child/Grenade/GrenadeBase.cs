@@ -8,7 +8,7 @@ public class GrenadeBase : ItemBase
     public float NoiseRange = 5.0f;
     public GameObject expoltionEffect;
 
-    protected bool isActive = false;
+    public bool isActive = false;
 
     Rigidbody rb;
 

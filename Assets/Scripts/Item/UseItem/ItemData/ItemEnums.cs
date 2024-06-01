@@ -16,8 +16,8 @@ public enum ItemType    //아이템 그룹 분리용 type
     BackPack,
     Helmet,
     Vest,     // Armor 대신 backpack,helmet,vest 추가
-    WeaponParts
-
+    WeaponParts,
+    Knife,
 }
 
 public enum ItemCode    //아이템 개별 식별용 ID
@@ -68,5 +68,6 @@ public enum ItemCode    //아이템 개별 식별용 ID
     SniperScope = 43,
     SniperSilencer = 44,
     SniperStock = 45,
+    Knife = 46,
 
 }

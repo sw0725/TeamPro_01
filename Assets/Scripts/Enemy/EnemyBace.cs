@@ -36,7 +36,7 @@ public class EnemyBace : RecycleObject
             if (hp != value) 
             {
                 hp = value;
-                if (State != EnemyState.Dead && hp <= 0)    // 한번만 죽기용도
+                if (State != EnemyState.Dead && hp < 0.1)    // 한번만 죽기용도
                 {
                     Die();
                 }
@@ -364,7 +364,7 @@ public class EnemyBace : RecycleObject
         nightAmpl = Ampl;
     }
 
-    IEnumerator AlatWait()      //원더 업데이트 1틱 돌고서 여기로 빠짐 왜?
+    IEnumerator AlatWait()
     {
         yield return new WaitForSeconds(alatWaitTime);
         if (target == null) 

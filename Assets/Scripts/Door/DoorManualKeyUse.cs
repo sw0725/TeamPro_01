@@ -14,7 +14,7 @@ public class DoorManualKeyUse : DoorManual
 
     protected override bool preOpen()
     {
-        return true; //GameManager.Instance.InventoryUI.Inventory.FindItem(ItemCode.Key);   합치면 풉시다
+        return GameManager.Instance.InventoryUI.Inventory.FindItem(ItemCode.Key);
     }
 
     protected override void Open()

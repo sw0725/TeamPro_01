@@ -15,8 +15,6 @@ public class Equip_UI : MonoBehaviour
 
     EquipSlot_UI[] equipSlot_UI;
 
-    DropSlotUI dropSlot;
-
     InventoryManager invenManager;
 
     RectTransform invenTransform;
@@ -37,9 +35,6 @@ public class Equip_UI : MonoBehaviour
 
         Transform child = transform.GetChild(0);
         equipSlot_UI = child.GetComponentsInChildren<EquipSlot_UI>();
-
-        child = transform.GetChild(1);
-        dropSlot = child.GetComponent< DropSlotUI>();
 
         invenManager = GetComponentInParent<InventoryManager>();
 
@@ -66,7 +61,6 @@ public class Equip_UI : MonoBehaviour
         invenManager.DragSlot.InitializeSlot(equip.DragSlot);  // �ӽ� ���� �ʱ�ȭ
 
         inven = GameManager.Instance.InventoryUI;
-        dropSlot.Close();
 
         Close();
     }
