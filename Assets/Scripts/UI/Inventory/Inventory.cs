@@ -63,7 +63,6 @@ public class Inventory
                 {
                     if (slots[i].ItemData != null)
                     {
-                        invenUI.Money += (int)slots[i].ItemData.Price;
                         Owner.Weight += slots[i].ItemData.weight;
                     }
                 }
@@ -170,12 +169,14 @@ public class Inventory
                 else
                 {
                     result = 0;
+                    Debug.Log("아이템 제거 실패");
                 }
             }
         }
         Debug.Log(result);
         return result;
     }
+    
 
     public void MoveItem(ItemSlot from, ItemSlot to)
     {
@@ -304,7 +305,20 @@ public class Inventory
         
     }
 
-
+    /// <summary>
+    /// 인벤토리에 있는 모든 아이템을 버리는 함수
+    /// </summary>
+    public void DropAllItems()
+    {
+        foreach (var slot in slots)
+        {
+            if (!slot.IsEmpty)
+            {
+                RemoveItem(slot.ItemData.itemId, slot.ItemCount);
+                // World.DropItem(slot.ItemData, slot.ItemCount, owner.transform.position);
+            }
+        }
+    }
     /// <summary>
     /// 슬롯 인덱스가 적절한 인덱스인지 확인하는 함수
     /// </summary>
@@ -350,6 +364,7 @@ public class Inventory
     {
         if (slot.ItemData != null)
         {
+            if(Owner != null)
             Owner.Weight -= (int)(slot.ItemData.weight * count);
         }
     }
@@ -367,12 +382,15 @@ public class Inventory
             if (!slots[i].IsEmpty && slots[i].ItemData.itemId == code)
             {
                 Debug.Log("열쇠 확인");
-                slots[i].DecreaseSlotItem();
+                //slots[i].DecreaseSlotItem();
                 result = true;
                 break;
             }
+            else
+            {
+                //Debug.Log("열쇠 찾지 못함");
+            }
         }
-        Debug.Log("열쇠 찾지 못함");
         return result; // 루프를 끝까지 돌았는데도 아이템을 찾지 못했으면 false 반환
     }
 
@@ -477,6 +495,7 @@ public class Inventory
         }
         return null; // 비어 있는 슬롯이 없으면 null 반환
     }
+
 
 #if UNITY_EDITOR
     public void Test_InventoryPrint()

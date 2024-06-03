@@ -1,10 +1,10 @@
-using UnityEngine;
+using System.IO;
 using UnityEngine.SceneManagement;
+using UnityEngine;
 using System.Collections;
 
 public class GameManager : Singleton<GameManager>
 {
-    // 게임에 필요한 주요 컴포넌트들을 관리하는 변수들
     private Player player;
     private ItemDataManager itemDataManager;
     private Inventory_UI inventoryUI;
@@ -12,14 +12,13 @@ public class GameManager : Singleton<GameManager>
     private InventoryManager inventoryManager;
     private TimeSystem timeSys;
     private WeaponBase weaponBase;
-    private ShopInventoryUI shopInventoryUI; // 새롭게 추가된 샵 인벤토리 UI
+    private ShopInventoryUI shopInventoryUI;
     private Equip_UI equipUI;
     private PlayerUI playerUI;
-
-    // ShopInventory 인스턴스 추가
     private ShopInventory shopInventory;
+    private SaveLoadManager saveLoadManager;
+    private Equip equip;  // Equip 인스턴스를 추가
 
-    // 외부 접근을 위한 프로퍼티 선언
     public Player Player => player;
     public ItemDataManager ItemData => itemDataManager;
     public Inventory_UI InventoryUI => inventoryUI;
@@ -31,33 +30,43 @@ public class GameManager : Singleton<GameManager>
     public Equip_UI EquipUI => equipUI;
     public PlayerUI PlayerUI => playerUI;
 
-    // 게임 씬 로딩 완료와 게임 종료 신호를 위한 델리게이트 및 이벤트
     public delegate void SceneAction();
-    public event SceneAction OnGameStartCompleted; // 게임 시작 후 호출될 이벤트
-    public event SceneAction OnGameEnding; // 게임 종료 전 호출될 이벤트
+    public event SceneAction OnGameStartCompleted;
+    public event SceneAction OnGameEnding;
 
-    // 게임 초기화 시 필요한 컴포넌트를 찾아서 할당
+    private string equipmentDataPath;
+
+    private void Awake()
+    {
+        equipmentDataPath = Path.Combine(Application.persistentDataPath, "equipmentData.json");
+    }
+
     protected override void OnInitialize()
     {
-        base.OnInitialize(); // 상속받은 Singleton의 초기화를 먼저 호출
+        base.OnInitialize();
+        saveLoadManager = FindObjectOfType<SaveLoadManager>();
         LoadComponentReferences();
+        CheckCurrentScene();
+        InitializeEquip();  // Equip 초기화
 
         Inventory inven = new Inventory(this);
-
-        if (InventoryUI != null)
+        if (inventoryUI != null)
         {
-            InventoryUI.InitializeInventory(inven);
+            inventoryUI.InitializeInventory(inven);
         }
 
         WorldInventory worldInven = new WorldInventory(this);
-
-        if(worldInventoryUI != null)
+        if (worldInventoryUI != null)
         {
             worldInventoryUI.InitializeWorldInventory(worldInven);
         }
 
-        Equip equip = new Equip(this);//
+        shopInventory = new ShopInventory();
+    }
 
+    private void InitializeEquip()
+    {
+        equip = new Equip(this);  // Equip 인스턴스 생성
         if (equipUI != null)
         {
             equipUI.InitializeInventory(equip);
@@ -66,17 +75,12 @@ public class GameManager : Singleton<GameManager>
         {
             Debug.LogError("equipUI가 할당되지 않았습니다!");
         }
-
-        // ShopInventory 초기화
-        shopInventory = new ShopInventory();
-        //shopInventoryUI.AddBasicItem();
     }
 
-    // 초기화 이전에 필요한 컴포넌트를 미리 설정
     protected override void OnPreInitialize()
     {
         base.OnPreInitialize();
-        itemDataManager = GetComponent<ItemDataManager>(); // 아이템 데이터 관리자 컴포넌트 찾기
+        itemDataManager = GetComponent<ItemDataManager>();
     }
 
     private void LoadComponentReferences()
@@ -90,14 +94,37 @@ public class GameManager : Singleton<GameManager>
         shopInventoryUI = FindAnyObjectByType<ShopInventoryUI>();
         equipUI = FindObjectOfType<Equip_UI>();
         playerUI = FindAnyObjectByType<PlayerUI>();
+        if (equipUI == null)
+        {
+            Debug.LogError("Equip_UI를 찾을 수 없습니다.");
+        }
+    }
+
+    private void CheckCurrentScene()
+    {
+        string currentSceneName = SceneManager.GetActiveScene().name;
+        Debug.Log("현재 씬 이름: " + currentSceneName);
+
+        if (currentSceneName == "MainMenuScene")
+        {
+            Debug.Log("메인 메뉴 씬에서 초기화 중...");
+        }
+        else if (currentSceneName == "InGameScene")
+        {
+            Debug.Log("인게임 씬에서 초기화 중...");
+        }
+        else
+        {
+            Debug.Log("알 수 없는 씬에서 초기화 중..." + currentSceneName);
+        }
     }
 
     public void StartGame(string sceneName)
     {
         if (sceneName == "InGameScene")
         {
-            SaveWorldInventory();
-            SaveInventory();
+            SaveAllData(); // 모든 데이터를 저장
+            player.UnequipAllItems(); // 모든 아이템을 해제
         }
         StartCoroutine(LoadScene(sceneName, OnGameStartCompleted));
     }
@@ -106,9 +133,25 @@ public class GameManager : Singleton<GameManager>
     {
         if (sceneName == "MainMenuScene")
         {
-            SaveInventory();
+            SaveInventory(); // 인벤토리 저장
+            SavePlayerWeight(); // 플레이어 무게 저장
+            player.UnequipAllItems(); // 모든 아이템을 해제
+            SaveWorldInventory(); // 월드 인벤토리 저장
+            SaveWorldInventoryMoney(); // 월드 인벤토리 돈 저장
+            OnGameEnding?.Invoke(); // 게임 종료 이벤트 호출
         }
+        SaveAllData(); // 모든 데이터를 저장
         StartCoroutine(LoadScene(sceneName, OnGameEnding));
+    }
+
+    private void SaveEquipmentData()
+    {
+        equip.SaveEquipmentData(equipmentDataPath);
+    }
+
+    public void LoadEquipmentData()
+    {
+        equip.LoadEquipmentData(equipmentDataPath);
     }
 
     private IEnumerator LoadScene(string sceneName, SceneAction onLoaded)
@@ -123,15 +166,40 @@ public class GameManager : Singleton<GameManager>
 
         if (sceneName == "MainMenuScene")
         {
-            LoadWorldInventory();
-            LoadInventory();
+            LoadAllData(); // 모든 데이터를 로드
         }
         else if (sceneName == "InGameScene")
         {
-            LoadInventory();
+            LoadInventory(); // 인벤토리 로드
+            LoadPlayerWeight(); // 플레이어 무게 로드
+            LoadWorldInventory(); // 월드 인벤토리 로드
+            LoadWorldInventoryMoney(); // 월드 인벤토리 돈 로드
+            OnGameStartCompleted?.Invoke(); // 게임 시작 이벤트 호출
+        }
+
+        Player playerScript = FindObjectOfType<Player>();
+        if (playerScript != null)
+        {
+            playerScript.InitializeEquipments(); // Player 클래스에서 장비 초기화
         }
 
         onLoaded?.Invoke();
+    }
+
+    public void SaveAllData()
+    {
+        SaveInventory();
+        SavePlayerWeight();
+        SaveWorldInventory();
+        SaveWorldInventoryMoney();
+    }
+
+    public void LoadAllData()
+    {
+        LoadInventory();
+        LoadPlayerWeight();
+        LoadWorldInventoryMoney();
+        LoadWorldInventory();
     }
 
     public void SaveWorldInventory()
@@ -157,12 +225,46 @@ public class GameManager : Singleton<GameManager>
         if (inventoryUI != null)
             inventoryUI.Inventory.LoadInventoryFromJson();
     }
+
+    public void SavePlayerWeight()
+    {
+        if (player != null)
+        {
+            player.SavePlayerData();
+        }
+    }
+
+    public void LoadPlayerWeight()
+    {
+        if (player != null)
+        {
+            player.LoadPlayerData();
+        }
+    }
+
+    public void SaveWorldInventoryMoney()
+    {
+        if (worldInventoryUI != null)
+        {
+            worldInventoryUI.SaveWorldInventoryData();
+        }
+    }
+
+    public void LoadWorldInventoryMoney()
+    {
+        if (worldInventoryUI != null)
+        {
+            worldInventoryUI.LoadWorldInventoryData();
+        }
+    }
+
 #if UNITY_EDITOR
 
-    public void Test_GameLoad() 
+    public void Test_GameLoad()
     {
         OnGameStartCompleted?.Invoke();
     }
+
     public void Test_GameEnd()
     {
         OnGameEnding?.Invoke();

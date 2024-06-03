@@ -1,17 +1,10 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
 public class Equip_UI : MonoBehaviour
 {
     Equip equip;
 
     public Equip Equip => equip;
-
 
     EquipSlot_UI[] equipSlot_UI;
 
@@ -31,9 +24,8 @@ public class Equip_UI : MonoBehaviour
 
     private void Awake()
     {
-        
-
         Transform child = transform.GetChild(0);
+
         equipSlot_UI = child.GetComponentsInChildren<EquipSlot_UI>();
 
         invenManager = GetComponentInParent<InventoryManager>();
@@ -43,12 +35,22 @@ public class Equip_UI : MonoBehaviour
         canvas = GetComponent<CanvasGroup>();
 
         QuickSlot = GetComponent<QuickSlot>();
-    }
 
+        if (equipSlot_UI == null || equipSlot_UI.Length == 0)
+        {
+            Debug.LogError("equipSlot_UI가 초기화되지 않았습니다.");
+        }
+    }
 
     public void InitializeInventory(Equip playerEquip)
     {
         equip = playerEquip;
+
+        if (equipSlot_UI == null || equipSlot_UI.Length == 0)
+        {
+            Debug.LogError("equipSlot_UI가 초기화되지 않았습니다.");
+            return;
+        }
 
         for (uint i = 0; i < equipSlot_UI.Length; i++)
         {
@@ -58,8 +60,6 @@ public class Equip_UI : MonoBehaviour
             QuickSlot.onGranadeChange = Equipment;
             QuickSlot.onETCChange = Equipment;
         }
-        invenManager.DragSlot.InitializeSlot(equip.DragSlot);  // �ӽ� ���� �ʱ�ȭ
-
         inven = GameManager.Instance.InventoryUI;
 
         Close();
@@ -67,7 +67,7 @@ public class Equip_UI : MonoBehaviour
 
     void Equipment(Equipment type)
     {
-        Owner.Equipped(type);  
+        Owner.Equipped(type);
     }
 
     public bool EquipItem(ItemSlot slot)
@@ -75,20 +75,49 @@ public class Equip_UI : MonoBehaviour
         return equip.AddItem(slot.ItemData.itemId);
     }
 
-    public void UnEquipItem(ItemSlot slot)
+    public bool UnEquipItem(ItemSlot slot)
     {
-        equip.RemoveItem(slot.ItemData.itemId);
+        return equip.RemoveItem(slot.ItemData.itemId);
     }
 
     public void UseItem(uint index)
     {
-        if(inven.Inventory.RemoveItem(equipSlot_UI[index].ItemSlot.ItemData.itemId) < 1)
+        inven.Inventory.RemoveItem(equipSlot_UI[index].EquipSlot.ItemData.itemId);
+
+        if (!inven.Inventory.FindItem(equipSlot_UI[index].EquipSlot.ItemData.itemId))
         {
-            equip.RemoveItem(equipSlot_UI[index].ItemSlot.ItemData.itemId);
+            Owner.UnEquipped(equipSlot_UI[index].EquipSlot.ItemData.itemType);
+            equip.RemoveItem(equipSlot_UI[index].EquipSlot.ItemData.itemId);
         }
     }
 
-    public void open()
+    public void AllUnEquip()
+    {
+        Debug.Log("Equip_UI AllUnEquip 호출");
+        if (equipSlot_UI == null)
+        {
+            Debug.LogError("equipSlot_UI 배열이 초기화되지 않았습니다.");
+            return;
+        }
+
+        for (int i = 0; i < equipSlot_UI.Length; i++)
+        {
+            if (equipSlot_UI[i] != null && equipSlot_UI[i].ItemSlot != null && equipSlot_UI[i].ItemSlot.IsEquiped)
+            {
+                UnEquipItem(equipSlot_UI[i].EquipSlot);
+                if (Owner != null)
+                {
+                    Owner.UnEquipped(equipSlot_UI[i].EquipSlot.ItemData.itemType);
+                }
+                else
+                {
+                    Debug.LogError("Owner가 null입니다.");
+                }
+            }
+        }
+    }
+
+    public void Open()
     {
         canvas.alpha = 1;
         canvas.interactable = true;
@@ -100,17 +129,5 @@ public class Equip_UI : MonoBehaviour
         canvas.alpha = 0;
         canvas.interactable = false;
         canvas.blocksRaycasts = false;
-    }
-
-    public void InventoryOnOff()
-    {
-        if (canvas.interactable)
-        {
-            Close();
-        }
-        else
-        {
-            open();
-        }
     }
 }

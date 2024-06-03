@@ -13,10 +13,8 @@ public class ShopBuyMenuUI : MonoBehaviour
     public TMP_InputField quantityInput; // 수량 입력을 위한 인풋 필드
     public Button purchaseButton; // 구매 버튼
     public Button cancelButton; // 취소 버튼
-    public Slider quantitySlider; // 수량 조절을 위한 슬라이더
     public Button plusButton; // 수량 증가 버튼
     public Button minusButton; // 수량 감소 버튼
-    
 
     // 아이템 슬롯 정보
     private ItemSlot currentItemSlot; // 현재 선택된 아이템 슬롯
@@ -42,11 +40,6 @@ public class ShopBuyMenuUI : MonoBehaviour
 
     private void Start()
     {
-        // 슬라이더 초기 설정
-        quantitySlider.minValue = 0;
-        quantitySlider.maxValue = 1;
-        quantitySlider.value = 0; // 초기 슬라이더 값 설정
-        quantitySlider.onValueChanged.AddListener(HandleSliderChange); // 슬라이더 값 변경 이벤트 핸들러
         quantityInput.onValueChanged.AddListener(HandleInputFieldChange); // 입력 필드 값 변경 이벤트 핸들러
         quantityInput.text = MinItemCount.ToString(); // 초기 수량 설정
     }
@@ -65,8 +58,6 @@ public class ShopBuyMenuUI : MonoBehaviour
         {
             value = (uint)Mathf.Clamp(value, MinItemCount, MaxItemCount); // 값 범위 제한
             quantityInput.text = value.ToString(); // 입력 필드 업데이트
-            float sliderValue = Mathf.InverseLerp(MinItemCount, MaxItemCount, value); // 슬라이더 값 업데이트
-            quantitySlider.value = sliderValue;
         }
     }
 
@@ -77,7 +68,6 @@ public class ShopBuyMenuUI : MonoBehaviour
         {
             currentQuantity++;
             quantityInput.text = currentQuantity.ToString();
-            quantitySlider.value = Mathf.InverseLerp(MinItemCount, MaxItemCount, currentQuantity);
         }
     }
 
@@ -88,7 +78,6 @@ public class ShopBuyMenuUI : MonoBehaviour
         {
             currentQuantity--;
             quantityInput.text = currentQuantity.ToString();
-            quantitySlider.value = Mathf.InverseLerp(MinItemCount, MaxItemCount, currentQuantity);
         }
     }
 
@@ -118,9 +107,6 @@ public class ShopBuyMenuUI : MonoBehaviour
             itemIcon.sprite = target.ItemData.itemImage;
             itemPriceText.text = $"가격 : {target.ItemData.Price}";
             quantityInput.text = "1"; // 초기 수량 설정
-            quantitySlider.minValue = MinItemCount;
-            quantitySlider.maxValue = Mathf.Min(MaxItemCount, target.ItemCount);
-            quantitySlider.value = MinItemCount;
 
             MovePosition(Mouse.current.position.ReadValue()); // 위치 조정
         }
@@ -146,28 +132,39 @@ public class ShopBuyMenuUI : MonoBehaviour
             }
 
             ItemCode purchasedItemCode = currentItemSlot.ItemData.itemId;
-            Debug.Log("구매한 아이템 코드 : " + purchasedItemCode);
+            int totalPrice = (int)(currentItemSlot.ItemData.Price * (int)quantity); // 총 가격 계산
 
-            bool allItemsAdded = true;
-            for (uint i = 0; i < quantity; i++)
+            WorldInventory_UI worldInventoryUI = GameManager.Instance.WorldInventory_UI;
+
+            // 플레이어가 충분한 돈을 가지고 있는지 확인
+            if (worldInventoryUI.Money >= totalPrice)
             {
-                bool itemAdded = GameManager.Instance.WorldInventory_UI.WorldInven.AddItem(purchasedItemCode);
-                if (!itemAdded)
+                bool allItemsAdded = true;
+                for (uint i = 0; i < quantity; i++)
                 {
-                    allItemsAdded = false;
-                    Debug.LogError("월드인벤토리에 아이템을 추가하지 못 했습니다.");
-                    break; // 하나라도 추가 실패하면 더 이상 추가하지 않고 중단
+                    bool itemAdded = GameManager.Instance.WorldInventory_UI.WorldInven.AddItem(purchasedItemCode);
+                    if (!itemAdded)
+                    {
+                        allItemsAdded = false;
+                        Debug.LogError("월드인벤토리에 아이템을 추가하지 못 했습니다.");
+                        break; // 하나라도 추가 실패하면 더 이상 추가하지 않고 중단
+                    }
                 }
-            }
 
-            if (allItemsAdded)
-            {
-                OnBuyItem?.Invoke(currentItemSlot, quantity);
-                Debug.Log("모든 아이템을 성공적으로 인벤토리에 추가했습니다.");
+                if (allItemsAdded)
+                {
+                    worldInventoryUI.Money -= totalPrice; // 플레이어 돈 차감
+                    OnBuyItem?.Invoke(currentItemSlot, quantity);
+                    Debug.Log("모든 아이템을 성공적으로 인벤토리에 추가했습니다.");
+                }
+                else
+                {
+                    Debug.LogError("모든 아이템을 성공적으로 인벤토리에 추가하지 못 했습니다.");
+                }
             }
             else
             {
-                Debug.LogError("모든 아이템을 성공적으로 인벤토리에 추가하지 못 했습니다.");
+                Debug.LogError("돈이 충분하지 않습니다.");
             }
         }
         else
@@ -175,6 +172,8 @@ public class ShopBuyMenuUI : MonoBehaviour
             Debug.LogError("잘못된 수량을 입력하셨습니다.");
         }
     }
+
+
 
 
     // 클릭 위치 확인

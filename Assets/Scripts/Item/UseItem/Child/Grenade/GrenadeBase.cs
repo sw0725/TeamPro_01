@@ -1,20 +1,21 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class GrenadeBase : ItemBase
 {
-    [Tooltip("¼ÒÀ½¹İ°æ")]
+    [Tooltip("ì†ŒìŒë°˜ê²½")]
     public float NoiseRange = 5.0f;
     public GameObject expoltionEffect;
 
-    public bool isActive = false;
+    protected bool isActive = false;
 
     Rigidbody rb;
+    PlayerFire playerfire;
 
     protected virtual void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        rb.useGravity = false; // ì´ˆê¸°ì—ëŠ” ì¤‘ë ¥ì„ ì‚¬ìš©í•˜ì§€ ì•ŠìŒ
     }
 
     protected virtual void OnCollisionEnter(Collision collision)
@@ -32,13 +33,23 @@ public class GrenadeBase : ItemBase
 
     public override void Use()
     {
-        GameManager.Instance.EquipUI.UseItem(5);
-        PlayerFire playerfire = GetComponentInParent<PlayerFire>();         //¹°°ÇÀ» »ç¿ëÇÒ¶§´Â ¹«Á¶°Ç ÀÚ½ÄÀ¸·Î µé¾î°¡ ÀÖÀ»°Í
+        // Use í˜¸ì¶œ ì‹œ í•„ìš”í•œ ì°¸ì¡°ë¥¼ ë¯¸ë¦¬ ê°€ì ¸ì˜¤ê¸°
+        playerfire = GetComponentInParent<PlayerFire>();
         Player player = GameManager.Instance.Player;
         Transform cam = player.transform.GetChild(0);
 
+        // ìˆ˜ë¥˜íƒ„ì„ ë¶€ëª¨ ì˜¤ë¸Œì íŠ¸ì—ì„œ ë¶„ë¦¬
+        transform.parent = null;
+
+        // ìˆ˜ë¥˜íƒ„ ìœ„ì¹˜ ë° ë¬¼ë¦¬ ì„¤ì •
         transform.position = playerfire.firePosition.transform.position;
         isActive = true;
+        rb.useGravity = true; // Use ë©”ì„œë“œê°€ í˜¸ì¶œë  ë•Œ ì¤‘ë ¥ì„ ì‚¬ìš©
         rb.AddForce(cam.forward * playerfire.throwPower, ForceMode.Impulse);
+
+        Debug.Log(isActive);
+
+        GameManager.Instance.EquipUI.UseItem(3);
     }
+
 }

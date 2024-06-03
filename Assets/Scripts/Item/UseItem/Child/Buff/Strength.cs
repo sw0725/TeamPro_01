@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Strength : BuffBase
@@ -11,22 +10,25 @@ public class Strength : BuffBase
             player.limitWeight += amountBuff;
             player.MaxWeight += amountBuff;
 
-            StartCoroutine(Duration());
+            Destroy(this.gameObject);
+            CoroutineManager.Instance.StartManagedCoroutine(Duration());
             base.Use();
         }
         else
         {
-            Debug.LogError("Player is not assigned when trying to use Heal.");
+            Debug.LogError("Player is not assigned when trying to use Strength.");
         }
     }
 
-    IEnumerator Duration()
+    private IEnumerator Duration()
     {
+        Debug.Log("Strength Duration() 시작"); // 코루틴 시작 시 메시지 출력
         yield return new WaitForSeconds(Maxduration);
+        Debug.Log("Strength Duration() 대기 완료"); // 대기 완료 후 메시지 출력
 
         player.limitWeight -= amountBuff;
         player.MaxWeight -= amountBuff;
-        Destroy(gameObject);
+        Debug.Log("Strength 버프 종료"); // 버프 종료 메시지 출력
     }
 
 #if UNITY_EDITOR

@@ -10,12 +10,13 @@ public class PlayerFire : MonoBehaviour
     private ParticleSystem ps;
     private Camera mainCamera;
     public int weaponPower = 5;
+    private Player player; // Player 인스턴스 참조 추가
 
-    private PlayerMove InputActions;
+    private PlayerMove inputActions;
+    private WeaponBase currentWeapon;
 
     PlayerNoiseSystem noise;
-    private WeaponBase weapon; // WeaponBase 타입의 멤버 변수 추가
-    private QuickSlot quickSlot; // QuickSlot 클래스의 인스턴스 추가
+    private QuickSlot quickSlot;
 
     private void Awake()
     {
@@ -40,43 +41,120 @@ public class PlayerFire : MonoBehaviour
             Debug.LogError("메인 카메라를 찾을 수 없습니다. 카메라가 '메인 카메라'로 태그되어 있는지 확인하십시오.");
         }
 
+        // Player 인스턴스 참조
+        player = GetComponent<Player>();
+        if (player == null)
+        {
+            Debug.LogError("Player 컴포넌트를 찾을 수 없습니다.");
+        }
+
         // 입력 시스템 설정
-        InputActions = new PlayerMove();
-        InputActions.Player.LeftMouse.performed += OnLeftMouse;
-        InputActions.Player.RightMouse.performed += OnRightMouse;
-        InputActions.Enable();
+        inputActions = new PlayerMove();
+        inputActions.Player.LeftMouse.performed += OnLeftMouse;
+        inputActions.Player.RightMouse.performed += OnRightMouse;
+        inputActions.Player.Reload.performed += OnReload;
+        inputActions.Enable();
     }
 
     private void OnEnable()
     {
-        InputActions.Enable();
+        inputActions.Enable();
     }
 
     private void OnDisable()
     {
-        InputActions.Disable();
+        inputActions.Disable();
     }
 
     private void OnLeftMouse(InputAction.CallbackContext context)
     {
-        Fire();
+        // 매번 좌클릭 시 currentWeapon을 갱신
+        if (firePosition != null)
+        {
+            WeaponBase[] weapons = firePosition.GetComponentsInChildren<WeaponBase>();
+            if (weapons.Length > 0)
+            {
+                currentWeapon = weapons[0];
+                currentWeapon.InitializeEffects(bulletEffect, ps); // WeaponBase 이펙트 초기화
+            }
+            else
+            {
+                currentWeapon = null;
+            }
+        }
+
+        if (currentWeapon != null)
+        {
+            currentWeapon.Fire();
+        }
+        else
+        {
+            Debug.Log("맨손 상태로 공격할 수 없습니다.");
+        }
     }
 
     private void OnRightMouse(InputAction.CallbackContext context)
     {
-        // QuickSlot을 통해 아이템 사용 신호 보내기
-        if (quickSlot != null)
+        if (firePosition != null)
         {
-            //quickSlot.SubWeapon(); // 예시로 SubWeapon을 사용하도록 설정
-            Debug.Log("퀵슬롯에서 아이템을 사용했습니다.");
+            // 수류탄을 들고 있는지 확인하고 Use 메서드를 호출
+            bool itemUsed = false;
+
+            // BuffBase를 상속받은 모든 버프 아이템을 검색하고 Use 메서드를 호출
+            BuffBase[] buffs = firePosition.GetComponentsInChildren<BuffBase>();
+            foreach (BuffBase buff in buffs)
+            {
+                if (buff != null)
+                {
+                    buff.Initialize(player); // Player 인스턴스 설정
+                    buff.Use();
+                    Debug.Log($"버프 사용중: {buff}");
+                    itemUsed = true;
+                    break;
+                }
+            }
+
+            if (!itemUsed)
+            {
+                // GrenadeBase를 상속받은 모든 수류탄 아이템을 검색하고 Use 메서드를 호출
+                GrenadeBase[] grenades = firePosition.GetComponentsInChildren<GrenadeBase>();
+                foreach (GrenadeBase grenade in grenades)
+                {
+                    if (grenade != null)
+                    {
+                        grenade.Use();
+                        Debug.Log($"수류탄 사용중: {grenade}");
+                        itemUsed = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!itemUsed)
+            {
+                Debug.Log("사용할 버프 또는 수류탄이 없습니다.");
+            }
+        }
+        else
+        {
+            Debug.LogError("FirePosition 오브젝트가 설정되지 않았습니다.");
         }
     }
-
-    private void Fire()
+    private void OnReload(InputAction.CallbackContext context)
     {
-        if (weapon != null)
+        if (firePosition != null)
         {
-            weapon.Fire(); // WeaponBase 클래스의 Fire 메서드 호출
+            WeaponBase weapon = firePosition.GetComponentInChildren<WeaponBase>();
+
+            if (weapon != null)
+            {
+                weapon.Use();
+                Debug.Log("무기 장전 완료");
+            }
+            else
+            {
+                Debug.Log("장전 실패");
+            }
         }
     }
 }

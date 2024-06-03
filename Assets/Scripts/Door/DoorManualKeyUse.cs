@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class DoorManualKeyUse : DoorManual
 {
@@ -14,7 +15,14 @@ public class DoorManualKeyUse : DoorManual
 
     protected override bool preOpen()
     {
-        return GameManager.Instance.InventoryUI.Inventory.FindItem(ItemCode.Key);
+        bool rst = false;
+        if (GameManager.Instance.InventoryUI.Inventory.FindItem(ItemCode.Key))
+        {
+            rst = true;
+            GameManager.Instance.InventoryUI.Inventory.RemoveItem(ItemCode.Key);
+        }
+        return rst;
+            
     }
 
     protected override void Open()
@@ -23,8 +31,9 @@ public class DoorManualKeyUse : DoorManual
         {
             if (preOpen())
             {
-                Debug.Log("≈ª√‚");
-                //»≠∏È¿¸»Ø(∞‘¿”∏ﬁ¥∫)
+                Debug.Log("ÌÉàÏ∂ú");
+
+                GameManager.Instance.EndGame("MainMenuScene");
             }
         }
         else 

@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1307303709941618119}
-  - component: {fileID: 2101757911777623039}
+  - component: {fileID: 6232139712740522819}
   m_Layer: 6
   m_Name: Throw
   m_TagString: Untagged
@@ -32,7 +32,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 6810731241642701826}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2101757911777623039
+--- !u!114 &6232139712740522819
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -85,7 +85,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 294655496415021546}
-  - component: {fileID: 2574784001789781539}
+  - component: {fileID: 7048953196287327855}
   m_Layer: 6
   m_Name: Helmet
   m_TagString: Untagged
@@ -108,7 +108,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 6810731241642701826}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2574784001789781539
+--- !u!114 &7048953196287327855
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -130,7 +130,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6810731241642701826}
-  - component: {fileID: 2838647018998382057}
+  - component: {fileID: 1572184769180904474}
   m_Layer: 6
   m_Name: WeaponTransform
   m_TagString: Untagged
@@ -159,7 +159,7 @@ Transform:
   - {fileID: 153230667144444026}
   m_Father: {fileID: 1170557410350977315}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2838647018998382057
+--- !u!114 &1572184769180904474
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -180,7 +180,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2561861343511602913}
-  - component: {fileID: 8606454485922766387}
+  - component: {fileID: 7502767754068648160}
   m_Layer: 6
   m_Name: Armor
   m_TagString: Untagged
@@ -203,7 +203,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 6810731241642701826}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8606454485922766387
+--- !u!114 &7502767754068648160
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -225,7 +225,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5202300062801387005}
-  - component: {fileID: 2260656672848523890}
+  - component: {fileID: 6838770493855154227}
   m_Layer: 6
   m_Name: BackPack
   m_TagString: Untagged
@@ -248,7 +248,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 6810731241642701826}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2260656672848523890
+--- !u!114 &6838770493855154227
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -270,7 +270,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 153230667144444026}
-  - component: {fileID: 8263431714705233461}
+  - component: {fileID: 6700180903887270199}
   m_Layer: 6
   m_Name: ETC
   m_TagString: Untagged
@@ -293,7 +293,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 6810731241642701826}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8263431714705233461
+--- !u!114 &6700180903887270199
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -315,7 +315,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8442667518386780232}
-  - component: {fileID: 2226661808040020943}
+  - component: {fileID: 6947787782814883872}
   m_Layer: 6
   m_Name: Weapon
   m_TagString: Untagged
@@ -338,7 +338,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 6810731241642701826}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2226661808040020943
+--- !u!114 &6947787782814883872
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -461,6 +461,7 @@ MonoBehaviour:
   currentWeight: 10
   defense: 1
   animator: {fileID: 0}
+  currentEquipments: []
 --- !u!114 &427344941204559975
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -609,7 +610,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a8cb6f30e849414793860e17924d1ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mouseSensitivity: 1
+  mouseSensitivity: 5
   playerBody: {fileID: 1170557410350977315}
   interactableLayerMask:
     serializedVersion: 2

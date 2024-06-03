@@ -272,6 +272,3 @@ MonoBehaviour:
   - code: 35
     dropRatio: 0.1
     maxDropCount: 1
-  - code: 46
-    dropRatio: 0.2
-    maxDropCount: 1

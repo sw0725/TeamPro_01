@@ -28,7 +28,7 @@ public class ShopInventory
         ItemDataManager itemDataManager = GameManager.Instance.ItemData;
         if (itemDataManager == null)
         {
-            Debug.LogError("itemDataManager가 null입니다.");
+            Debug.Log("itemDataManager가 null입니다.");
             return;
         }
 
@@ -40,27 +40,17 @@ public class ShopInventory
                 if (items[i].IsEmpty)
                 {
                     items[i].AssignSlotItem(data);
-                    UpdateUI();
                     break;
                 }
-                else if (items[i].ItemData == data && items[i].SetSlotCount(out uint _))
+                else
                 {
-                    UpdateUI();
-                    break;
+                    continue;
                 }
             }
         }
         else
         {
             Debug.LogError($"ItemDataManager에서 {code}에 대한 데이터를 찾을 수 없습니다.");
-        }
-    }
-
-    private void UpdateUI()
-    {
-        if (shopInvenUI != null)
-        {
-            shopInvenUI.UpdateSlots();
         }
     }
 

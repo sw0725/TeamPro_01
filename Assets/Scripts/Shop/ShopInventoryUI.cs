@@ -8,7 +8,6 @@ public class ShopInventoryUI : MonoBehaviour
     public RectTransform shopTransform; // 상점의 RectTransform
     public CanvasGroup canvas; // 상점 UI의 CanvasGroup
     public ShopBuyMenuUI shopBuyMenu; // ShopBuyMenuUI 컴포넌트 참조
-
     public ShopInventory shopInventory; // ShopInventory 참조
 
     private void Awake()
@@ -36,32 +35,51 @@ public class ShopInventoryUI : MonoBehaviour
             return;
         }
 
-        for (uint i = 0; i < shopSlots.Length; i++)
+        if (shopSlots == null || shopSlots.Length == 0)
         {
-            shopSlots[i].InitializeSlot(shopInventory[i]);
-            shopSlots[i].onRightClick += OnItemRightClick;
+            Debug.LogError("shopSlots 배열이 초기화되지 않았습니다!");
+            return;
         }
 
-        shopBuyMenu.Close();
-    }
+        for (uint i = 0; i < shopSlots.Length; i++)
+        {
+            if (shopSlots[i] != null)
+            {
+                shopSlots[i].InitializeSlot(shopInventory[i]);
+                shopSlots[i].onRightClick += OnItemRightClick;
+            }
+            else
+            {
+                Debug.LogError($"shopSlots[{i}]가 null입니다.");
+            }
+        }
 
+        if (shopBuyMenu != null)
+        {
+            shopBuyMenu.Close();
+        }
+        else
+        {
+            Debug.LogError("shopBuyMenu가 null입니다.");
+        }
+    }
     private void OnItemRightClick(uint index)
     {
-        Slot_UI target = shopSlots[index];
-        shopBuyMenu.Open(target.ItemSlot);
-        shopBuyMenu.MovePosition(Mouse.current.position.ReadValue());
-    }
-
-    public void UpdateSlots()
-    {
-        for (int i = 0; i < shopSlots.Length && i < shopInventory.items.Length; i++)
+        if (index < shopSlots.Length && shopSlots[index] != null)
         {
-            if (shopInventory.items[i] != null)
+            Slot_UI target = shopSlots[index];
+            if (target != null && target.ItemSlot != null)
             {
-                shopSlots[i].InitializeSlot(shopInventory.items[i]);
+                shopBuyMenu.Open(target.ItemSlot);
+                shopBuyMenu.MovePosition(Mouse.current.position.ReadValue());
+            }
+            else
+            {
+                Debug.LogError($"잘못된 인덱스 또는 null slot: {index}");
             }
         }
     }
+
 
     // 상점 열기 함수
     public void Open()
@@ -81,9 +99,26 @@ public class ShopInventoryUI : MonoBehaviour
     public void AddBasicItem()
     {
         shopInventory.AddItem(ItemCode.Pistol);
-        shopInventory.AddItem(ItemCode.Rifle);
-        shopInventory.AddItem(ItemCode.Shotgun);
-        shopInventory.AddItem(ItemCode.Sniper);
-        shopInventory.AddItem(ItemCode.Key);
+        shopInventory.AddItem(ItemCode.Knife);
+        shopInventory.AddItem(ItemCode.LowHelmet);
+        shopInventory.AddItem(ItemCode.Knife);
+        shopInventory.AddItem(ItemCode.LowVest);
+        shopInventory.AddItem(ItemCode.Knife);
+        shopInventory.AddItem(ItemCode.LowBackpack);
+        shopInventory.AddItem(ItemCode.Knife);
+        shopInventory.AddItem(ItemCode.SmallHeal);
+        shopInventory.AddItem(ItemCode.Knife);
+        shopInventory.AddItem(ItemCode.Small);
+        shopInventory.AddItem(ItemCode.Knife);
+        shopInventory.AddItem(ItemCode.SmallStrength);
+        shopInventory.AddItem(ItemCode.Knife);
+        shopInventory.AddItem(ItemCode.PistolBullet);
+        shopInventory.AddItem(ItemCode.Knife);
+        shopInventory.AddItem(ItemCode.RifleBullet);
+        shopInventory.AddItem(ItemCode.Knife);
+        shopInventory.AddItem(ItemCode.ShotgunBullet);
+        shopInventory.AddItem(ItemCode.Knife);
+        shopInventory.AddItem(ItemCode.NoiseGrenade);
     }
+
 }

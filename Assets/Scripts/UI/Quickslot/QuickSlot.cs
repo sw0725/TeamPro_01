@@ -1,18 +1,14 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor.Purchasing;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class QuickSlot : MonoBehaviour
 {
-    private PlayerInput playerInput;
+    [SerializeField]
     private Player owner;
     public Player Owner => owner;
 
-    PlayerInput UIinputActions;
+    private PlayerMove UIinputActions;
 
     public Action<Equipment> onWeaponChange;
     public Action<Equipment> onGranadeChange;
@@ -20,23 +16,33 @@ public class QuickSlot : MonoBehaviour
 
     private void Awake()
     {
-        UIinputActions = new PlayerInput();
+        UIinputActions = new PlayerMove();
     }
 
     private void OnEnable()
     {
-        UIinputActions.UI.Enable();
-        UIinputActions.UI.QuickSlot1.performed += MainWeapon1;
-        UIinputActions.UI.QuickSlot2.performed += ThrowWeapon;
-        UIinputActions.UI.QuickSlot3.performed += ETCSlot;
+        EnableInputActions();
     }
 
     private void OnDisable()
     {
-        UIinputActions.UI.QuickSlot3.performed -= ETCSlot;
-        UIinputActions.UI.QuickSlot2.performed -= ThrowWeapon;
-        UIinputActions.UI.QuickSlot1.performed -= MainWeapon1;
-        UIinputActions.UI.Disable();
+        DisableInputActions();
+    }
+
+    private void EnableInputActions()
+    {
+        UIinputActions.Player.Enable();
+        UIinputActions.Player.QuickSlot1.performed += MainWeapon1;
+        UIinputActions.Player.QuickSlot2.performed += ThrowWeapon;
+        UIinputActions.Player.QuickSlot3.performed += ETCSlot;
+    }
+
+    private void DisableInputActions()
+    {
+        UIinputActions.Player.QuickSlot1.performed -= MainWeapon1;
+        UIinputActions.Player.QuickSlot2.performed -= ThrowWeapon;
+        UIinputActions.Player.QuickSlot3.performed -= ETCSlot;
+        UIinputActions.Player.Disable();
     }
 
     private void MainWeapon1(InputAction.CallbackContext context)
@@ -52,5 +58,10 @@ public class QuickSlot : MonoBehaviour
     private void ETCSlot(InputAction.CallbackContext context)
     {
         onETCChange?.Invoke(Equipment.ETC);
+    }
+
+    public void SetOwner(Player newOwner)
+    {
+        owner = newOwner;
     }
 }

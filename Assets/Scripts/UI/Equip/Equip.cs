@@ -1,11 +1,6 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Net.NetworkInformation;
-using UnityEditor.SceneManagement;
+using System.IO;
 using UnityEngine;
-
-
 
 public class Equip
 {
@@ -29,7 +24,6 @@ public class Equip
         for (uint i = 0; i < slots.Length; i++)
         {
             slots[i] = new EquipSlot(i);
-            //slots[i].PlayerEquipment = slotsParent.GetComponentsInChildren<EquipSlot_UI>()[i].PlayerEquipment;  // awake 함수로 따로 찾기
         }
 
         dragSlot = new DragSlot(dragSlotIndex);
@@ -41,17 +35,10 @@ public class Equip
 
         for (uint i = 0; i < slots.Length; i++)
         {
-            slots[i].slotType = equipUIObject.GetChild((int)i).GetComponent<EquipSlot_UI>().slotType;  // awake 함수로 따로 찾기
-
-            //slots[i].PlayerEquip = EquipSlot.PlayerEquipment[(int)i]
+            slots[i].slotType = equipUIObject.GetChild((int)i).GetComponent<EquipSlot_UI>().slotType;
         }
     }
 
-    /// <summary>
-    /// 정비창에 특정 아이템을 장착하는 함수.
-    /// </summary>
-    /// <param name="code">장착 할 아이템 코드</param>
-    ///// <returns>성공하면 true 리턴 실패하면 false 리턴</returns>
     public bool AddItem(ItemCode code)
     {
         for (int i = 0; i < SlotCount; i++)
@@ -65,20 +52,18 @@ public class Equip
         return false;
     }
 
-    /// <summary>
-    /// 특정 정비창 슬롯에 특정 아이템을 1개 장착하는 함수
-    /// </summary>
-    /// <param name="code">장착 할 아이템의 코드</param>
-    /// <param name="slotIndex">아이템을 장착 할 슬롯의 인덱스</param>
-    /// <returns>성공하면 true 리턴 실패하면 false 리턴</returns>
     public bool AddItem(ItemCode code, uint slotIndex)
     {
-
         if (IsValidIndex(slotIndex))
         {
             ItemData data = itemDataManager[code];
-            EquipSlot slot = slots[slotIndex];
+            if (data == null)
+            {
+                Debug.LogError($"itemDataManager에서 ItemCode {code}에 대한 데이터를 찾을 수 없습니다.");
+                return false;
+            }
 
+            EquipSlot slot = slots[slotIndex];
             if (slot.slotType.Contains(data.itemType))
             {
                 if (slot.IsEmpty)
@@ -91,7 +76,6 @@ public class Equip
         return false;
     }
 
-
     public bool IsValidIndex(uint index)
     {
         return index < SlotCount;
@@ -102,23 +86,20 @@ public class Equip
         return (slot != null) || (slot == dragSlot);
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="slotIndex"></param>
-    /// <param name="count"></param>
-    private void RemoveItem(uint slotIndex, uint count = 1)
+    private bool RemoveItem(uint slotIndex, uint count = 1)
     {
         if (IsValidIndex(slotIndex))
         {
             EquipSlot slot = slots[slotIndex];
             slot.DecreaseSlotItem(count);
+            return true; // 아이템 제거 성공
         }
+        return false; // 유효하지 않은 인덱스
     }
 
-    public void RemoveItem(ItemCode code,  uint count = 1)
+    public bool RemoveItem(ItemCode code, uint count = 1)
     {
-        for(int i = 0; i < SlotCount; i++)
+        for (int i = 0; i < SlotCount; i++)
         {
             ItemData data = itemDataManager[code];
             EquipSlot slot = slots[i];
@@ -127,36 +108,126 @@ public class Equip
             {
                 if (!slot.IsEmpty)
                 {
-                    RemoveItem((uint)i, count);
-                    break;
+                    return RemoveItem((uint)i, count); // 내부 메서드 호출 결과 반환
                 }
+            }
+        }
+        return false; // 해당 코드에 해당하는 아이템을 찾지 못함
+    }
+
+    public void UnEquipAllItems()
+    {
+        foreach (var slot in slots)
+        {
+            if (!slot.IsEmpty)
+            {
+                RemoveItem(slot.ItemData.itemId);
             }
         }
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    public void ClearEquip()
+    private EquipSlot GetEmptySlot(ItemCode itemCode)
     {
+        // 모든 슬롯을 순회하며 비어 있는 슬롯을 찾음
         foreach (var slot in slots)
         {
-            slot.ClearSlot();
+            if (slot.IsEmpty && slot.slotType.Contains(itemDataManager[itemCode].itemType))
+            {
+                return slot;
+            }
+        }
+        return null; // 비어 있는 슬롯이 없으면 null 반환
+    }
+    public void SaveEquipmentData(string path)
+    {
+        List<EquipmentData> equipmentDataList = new List<EquipmentData>();
+        foreach (var slot in slots)
+        {
+            if (!slot.IsEmpty)
+            {
+                uint itemId = (uint)slot.ItemData.itemId; // ItemCode를 uint로 변환
+                ItemType itemType = slot.ItemData.itemType;
+                equipmentDataList.Add(new EquipmentData(itemId, itemType));
+            }
+        }
+        string json = JsonUtility.ToJson(new EquipmentDataWrapper(equipmentDataList));
+        File.WriteAllText(path, json);
+        Debug.Log($"장비 데이터 저장됨: {json}");
+    }
+
+    public void LoadEquipmentData(string path)
+    {
+        if (File.Exists(path))
+        {
+            string json = File.ReadAllText(path);
+            EquipmentDataWrapper wrapper = JsonUtility.FromJson<EquipmentDataWrapper>(json);
+            foreach (var data in wrapper.equipments)
+            {
+                ItemCode itemCode = (ItemCode)data.itemId; // uint를 ItemCode로 변환
+                AddItem(itemCode);
+            }
+            Debug.Log($"장비 데이터 로드됨: {json}");
+        }
+        else
+        {
+            Debug.LogWarning("장비 데이터 파일을 찾을 수 없습니다.");
         }
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    //public void EquipEfectApply()
-    //{
-    //    if (slots[3] != null || slots[4] != null)
-    //    {
-    //        ArmorBase armoHelmet = slots[3].ItemData.itemPrefab.GetComponent<ArmorBase>();
-    //        ArmorBase armoVest = slots[4].ItemData.itemPrefab.GetComponent<ArmorBase>();
+    public void ReEquipLoadedItems()
+    {
+        foreach (var slot in slots)
+        {
+            if (!slot.IsEmpty)
+            {
+                Equipment equipment = ConvertItemTypeToEquipment(slot.ItemData.itemType);
+                Owner.Equipped(equipment);
+            }
+        }
+    }
 
-    //        owner.Hp += armoHelmet.amountDefense;
-    //        owner.Hp += armoVest.amountDefense;
-    //    }
-    //}
+    private Equipment ConvertItemTypeToEquipment(ItemType itemType)
+    {
+        switch (itemType)
+        {
+            case ItemType.Gun:
+                return Equipment.Gun;
+            case ItemType.Grenade:
+                return Equipment.Throw;
+            case ItemType.Helmet:
+                return Equipment.Helmet;
+            case ItemType.Armor:
+                return Equipment.Vest;
+            case ItemType.BackPack:
+                return Equipment.BackPack;
+            // 필요한 경우 다른 아이템 타입도 추가합니다.
+            default:
+                return Equipment.None; // 기본값을 반환합니다.
+        }
+    }
+
+}
+
+    [System.Serializable]
+public class EquipmentData
+{
+    public uint itemId;
+    public ItemType itemType;
+
+    public EquipmentData(uint itemId, ItemType itemType)
+    {
+        this.itemId = itemId;
+        this.itemType = itemType;
+    }
+}
+
+[System.Serializable]
+public class EquipmentDataWrapper
+{
+    public List<EquipmentData> equipments;
+
+    public EquipmentDataWrapper(List<EquipmentData> equipments)
+    {
+        this.equipments = equipments;
+    }
 }
